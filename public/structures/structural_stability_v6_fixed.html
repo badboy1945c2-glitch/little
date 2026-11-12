@@ -1,0 +1,1541 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+
+</style></head><body>
+<title>مختبر الاستقرار الإنشائي | واجهة الرسم المطوّرة</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+
+<style>
+:root{
+  /* concept: drafting board. Grid-paper canvas, ink members, one cobalt accent; green/red are reserved for the verdict */
+  --bg:#eff2f1; --surface:#fafbfa; --ink:#15212b; --muted:#5a6a75; --line:#cfd8d5; --grid:#dde4e1;
+  --accent:#2446c9; --on-accent:#ffffff;
+  --good:#12795a; --good-bg:#dff3ea; --bad:#c7341f; --bad-bg:#fbe4df; --warn:#a8650a;
+  --font:'IBM Plex Sans Arabic','Segoe UI',Tahoma,system-ui,sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1519; --surface:#151f26; --ink:#e5edf0; --muted:#93a4ae; --line:#2a3a44; --grid:#1e2c34;
+    --accent:#7f9cff; --on-accent:#0c1220;
+    --good:#4dc79c; --good-bg:#123327; --bad:#ff7b62; --bad-bg:#3a1a15; --warn:#e4a14a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1519; --surface:#151f26; --ink:#e5edf0; --muted:#93a4ae; --line:#2a3a44; --grid:#1e2c34;
+  --accent:#7f9cff; --on-accent:#0c1220;
+  --good:#4dc79c; --good-bg:#123327; --bad:#ff7b62; --bad-bg:#3a1a15; --warn:#e4a14a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--font); font-size:15px; line-height:1.6;
+  padding-block:20px 44px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+button,input{font-family:inherit;color:inherit}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:14px}
+header h1{font-size:26px;line-height:1.25;margin:0 0 4px;font-weight:700;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:64ch}
+.kindbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.kindnote{font-size:13px;color:var(--muted);flex:1 1 260px;min-width:0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg);max-width:100%}
+.seg button{padding:5px 12px;border:0;background:transparent;font-size:13px;cursor:pointer;white-space:nowrap}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.seg.big button{padding:7px 16px;font-size:14px;font-weight:600}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.presets span{font-size:13px;color:var(--muted);margin-inline-end:4px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip:focus-visible,.tbtn:focus-visible,.ghost:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.main{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:0}
+.canvas-card{overflow:hidden;border-width:2px}
+.canvas-card[data-s="ok"]{border-color:var(--good)}
+.canvas-card[data-s="bad"]{border-color:var(--bad)}
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px;padding:10px}
+.tbtn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px 6px;border:1px solid var(--line);
+  background:var(--bg);border-radius:8px;font-size:11.5px;cursor:pointer;line-height:1.2;text-align:center}
+.tbtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tbtn[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.hintbar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:0 12px 8px;font-size:13px;color:var(--muted);min-height:34px}
+.hintbar .acts{display:flex;gap:6px;flex-shrink:0}
+.optbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:0 12px 10px;font-size:13px}
+.optbar label.chk{display:flex;gap:6px;align-items:center;cursor:pointer}
+.ghost{border:1px solid var(--line);background:transparent;border-radius:6px;padding:3px 10px;font-size:12.5px;cursor:pointer}
+.ghost:disabled{opacity:.45;cursor:default}
+.stage{position:relative;border-top:1px solid var(--line);background:var(--surface)}
+.badge{position:absolute;inset-block-start:10px;inset-inline-start:10px;padding:4px 12px;border-radius:999px;font-weight:700;font-size:14px;
+  display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);z-index:2}
+.badge i{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.badge[data-s="ok"]{background:var(--good-bg);color:var(--good);border-color:var(--good)}
+.badge[data-s="ok"] i{background:var(--good)}
+.badge[data-s="bad"]{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.badge[data-s="bad"] i{background:var(--bad)}
+svg#cv{display:block;width:100%;height:auto;direction:ltr;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:crosshair}
+svg#cv text{font-family:var(--font)}
+.coord-card{padding:12px;border-top:1px solid var(--line);display:grid;gap:7px;background:var(--bg)}
+.coord-card>b{font-size:14px}
+.coord-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.coord-grid label{display:grid;gap:3px;font-size:12px;color:var(--muted)}
+.coord-grid input{width:100%;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 5px;font-family:var(--mono);font-size:14px;direction:ltr;text-align:center;color:var(--ink)}
+.coord-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.primary-btn{background:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:7px 11px;color:var(--on-accent);font-weight:600;cursor:pointer}
+.checks{border-inline-start:3px solid var(--warn);padding:7px 10px;border-radius:5px;background:var(--bg);font-size:13px}
+.checks p{margin:2px 0}
+.main-note{margin:0}
+@media(max-width:550px){.coord-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tools{grid-template-columns:repeat(5,minmax(0,1fr))}.tbtn{font-size:11px}}
+
+.gl{stroke:var(--grid);stroke-width:1}
+.tk{font-size:11px;fill:var(--muted);font-family:var(--mono)}
+.lbl{font-size:13px;fill:var(--muted);font-family:var(--mono);font-weight:600}
+.mem{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
+.mem.mov{stroke:var(--bad);opacity:.38}
+.mem.tr{stroke-width:4}
+.msel{stroke:var(--accent);stroke-width:14;opacity:.28;stroke-linecap:round}
+.sup{stroke:var(--ink);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sup.f{fill:var(--surface)}
+.sup.thick{stroke-width:4}
+.sup.hat{stroke-width:1.5}
+.hinge{fill:var(--surface);stroke:var(--ink);stroke-width:2.5}
+.rl{stroke:var(--ink);stroke-width:2;fill:none}
+.nd{fill:var(--ink)}
+.pend{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-dasharray:4 3}
+.nsel{fill:none;stroke:var(--accent);stroke-width:3}
+.gm{stroke:var(--bad);stroke-width:4;stroke-dasharray:7 5;fill:none;stroke-linecap:round}
+.gn{fill:var(--surface);stroke:var(--bad);stroke-width:2.5}
+.insp{border-top:1px solid var(--line);padding:12px;display:grid;gap:10px;background:var(--bg)}
+.insp-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.irow{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:13px}
+.il{min-width:64px;color:var(--muted)}
+.irow input[type="number"]{width:74px;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:3px 6px;font-family:var(--mono);font-size:13px;direction:ltr;text-align:center}
+.inote{margin:0;font-size:12.5px;color:var(--muted)}
+.panel{padding:16px;display:grid;gap:14px}
+.verdict{border-radius:8px;padding:12px 14px;border:1px solid var(--line);background:var(--bg)}
+.verdict[data-s="ok"]{background:var(--good-bg);border-color:var(--good)}
+.verdict[data-s="bad"]{background:var(--bad-bg);border-color:var(--bad)}
+.verdict b{display:block;font-size:24px;line-height:1.2}
+.verdict b small{font-size:13px;font-weight:500;font-family:var(--mono);margin-inline-start:6px;opacity:.85}
+.verdict[data-s="ok"] b{color:var(--good)}
+.verdict[data-s="bad"] b{color:var(--bad)}
+.pill{display:inline-block;margin-top:8px;padding:3px 12px;border-radius:999px;font-size:14px;font-weight:600;border:1px solid currentColor}
+.pill:empty{display:none}
+.verdict p{margin:6px 0 0;font-size:14px}
+dl.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0}
+dl.stats div{border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--bg)}
+dl.stats dt{font-size:12px;color:var(--muted)}
+dl.stats dd{margin:0;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;font-family:var(--mono)}
+.formula{font-family:var(--mono);direction:ltr;text-align:left;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;overflow-x:auto;white-space:nowrap}
+.sub{font-size:12.5px;color:var(--muted);margin:0 0 4px}
+ul.why{margin:0;padding-inline-start:18px;display:grid;gap:6px;font-size:14px}
+.modebox{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;flex-wrap:wrap}
+details{font-size:13.5px;color:var(--muted)}
+details summary{cursor:pointer;color:var(--ink);font-weight:600}
+details p{margin:6px 0 0}
+details ul{margin:6px 0 0;padding-inline-start:18px;display:grid;gap:6px}
+details a{color:var(--accent)}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---------- V5 • calm drawing-first workbench ---------- */
+:root{--bg:#f3f6f8;--surface:#fff;--ink:#172c3c;--muted:#607585;--line:#dbe4eb;--grid:#e7edf2;--accent:#135b83;--on-accent:#fff}
+:root[data-theme="dark"]{--bg:#10191f;--surface:#18242c;--ink:#edf2f6;--muted:#a3b0bc;--line:#31414c;--grid:#24343e;--accent:#76b9e1;--on-accent:#071d2b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10191f;--surface:#18242c;--ink:#edf2f6;--muted:#a3b0bc;--line:#31414c;--grid:#24343e;--accent:#76b9e1;--on-accent:#071d2b}}
+body{padding-block:18px 38px;line-height:1.48}
+.wrap{max-width:1320px;gap:13px}
+header{padding:3px 2px 2px}
+header h1{font-size:clamp(22px,3vw,30px);letter-spacing:-.4px;margin:0}
+header h1 small{white-space:nowrap}
+header p{font-size:13px;margin-top:4px}
+.kindbar{align-items:flex-start;gap:4px 16px}
+.kindnote{font-size:12px;align-self:center;line-height:1.5}
+.seg.big{background:var(--surface);border-radius:11px;box-shadow:0 1px 3px rgba(24,45,64,.04)}
+.seg.big button{padding:9px 18px;font-weight:700}
+.seg.big button[aria-pressed="true"]{border-radius:9px}
+.main{grid-template-columns:minmax(0,2.3fr) minmax(260px,1fr);gap:16px}
+.card{border-radius:14px;box-shadow:0 4px 18px rgba(16,44,67,.035)}
+.canvas-card{border-width:1px!important;border-color:var(--line)!important}
+.workbench-head{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:13px 14px 2px}
+.small-overline{font-weight:800;font-size:13px}
+.workbench-prompt{font-size:12px;color:var(--muted)}
+.tools{display:flex;gap:0;max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:thin;padding:8px 12px 12px;border-bottom:1px solid var(--line)}
+.tool-group{display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:0 10px;flex:0 0 auto;border-inline-start:1px solid var(--line)}
+.tool-group:first-child{padding-inline-start:0;border-inline-start:0}
+.tool-group:last-child{padding-inline-end:0}
+.tool-group-title{font-size:10px;color:var(--muted);font-weight:700}
+.tool-group-buttons{display:flex;gap:5px}
+.tbtn{min-width:61px;flex:0 0 auto;font-size:11px;gap:3px;border-radius:9px;background:var(--surface);padding:9px 5px 7px;font-weight:650}
+.tbtn svg{width:22px;height:22px}
+.tbtn[aria-pressed="true"]{box-shadow:0 3px 8px rgba(20,75,110,.18)}
+.stage{border-top:none;background:var(--surface)}
+svg#cv{max-height:min(72vh,660px);aspect-ratio:7/5;margin:auto;touch-action:pan-y}
+.gl{stroke-width:.9}
+.badge{font-size:12px;top:10px;right:10px;left:auto;inset-inline-start:10px;inset-inline-end:auto;border-radius:9px;box-shadow:0 2px 8px rgba(21,43,60,.07)}
+.canvas-footer-note{display:flex;flex-wrap:wrap;gap:7px;align-items:center;padding:8px 14px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+.hintbar{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;padding:8px 12px;border-top:1px solid var(--line);min-height:auto}
+.hintbar .acts{display:flex;flex-wrap:wrap;gap:5px;max-width:100%}
+.hintbar .acts .ghost{white-space:nowrap;font-size:12px;padding:7px 10px}
+.hintbar .acts .ghost:nth-child(-n+2){background:var(--bg)}
+.tool-help{color:var(--muted);font-size:12px}
+.tool-help summary{font-weight:600;color:var(--muted)}
+.tool-help span{display:block;padding:6px 0;line-height:1.6}
+.presets-panel,.control-details{background:var(--surface);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.presets-panel>summary,.control-details>summary{cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:13px;font-weight:750;padding:10px 13px;list-style:none}
+.presets-panel>summary::-webkit-details-marker,.control-details>summary::-webkit-details-marker{display:none}
+.presets-panel>summary::before,.control-details>summary::before{content:'+';color:var(--accent);font-weight:900;font-size:18px;line-height:1}
+.presets-panel[open]>summary::before,.control-details[open]>summary::before{content:'−'}
+.presets-panel>.presets{padding:7px 13px 12px;border-top:1px solid var(--line)}
+.presets span{display:none}
+.chip{background:var(--bg);border-color:var(--line)}
+.details-hint{font-weight:400;color:var(--muted);font-size:11px;margin-inline-start:auto}
+.control-details{border-radius:0;border-width:0;border-top:1px solid var(--line)}
+.control-details>summary{padding:11px 14px}
+.optbar{padding:10px 14px 14px;border-top:1px solid var(--line);background:var(--bg)}
+.coord-card{border-top:1px solid var(--line);padding:12px 14px 16px}
+.coord-card>b{font-size:12px;color:var(--muted)}
+.coord-actions{margin-top:4px}
+.coord-actions .ghost,.coord-actions .primary-btn{padding:9px 11px}
+.coord-grid input{border-radius:8px}
+.panel{gap:12px;padding:13px;align-self:start;position:sticky;top:12px}
+.verdict{border-radius:10px}
+.verdict b{font-size:21px}
+.stats{gap:6px!important}
+.stats div{padding:7px 8px!important}
+.stats dt{font-size:11px!important}
+.stats dd{font-size:18px!important}
+.result-disclaimer{font-size:11px;border-top:1px solid var(--line);padding-top:10px}
+.insp{border-color:var(--line);background:var(--bg);padding:15px}
+.roll-mask{fill:var(--surface);stroke:none}
+.roll-wheel{fill:var(--surface);stroke:var(--ink);stroke-width:3.3}
+.roll-top,.roll-seat{stroke:var(--ink);stroke-width:4.2;stroke-linecap:square;stroke-linejoin:round;fill:none}
+@media(max-width:900px){.main{grid-template-columns:minmax(0,1fr)}.panel{position:static}.workbench-prompt{font-size:10px;display:inline;text-align:left}}
+@media(max-width:550px){
+ body{padding:14px 12px 32px}
+ .wrap{gap:11px}
+ header h1{font-size:22px}
+ header p{font-size:12px}
+ .kindbar{gap:5px}
+ .kindnote{line-height:1.4;font-size:11px;min-width:0}
+ .seg.big{width:100%}
+ .seg.big button{flex:1;padding:9px 5px;font-size:12px}
+ .workbench-head{padding:10px 12px 0}
+ .tools{grid-template-columns:none!important;padding:6px 10px 10px}
+ .tbtn{min-width:57px;padding:8px 5px 6px}
+ .hintbar .acts{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+ .hintbar .acts .ghost{flex:0 0 auto}
+ .details-hint{font-size:10px}
+ .badge{font-size:10px;padding:4px 8px}
+ .canvas-footer-note{font-size:10px;padding:8px 10px}
+ .coord-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .panel{padding:12px}
+ .presets-panel>summary,.control-details>summary{font-size:12px}
+}
+/* Finger swipes on blank drawing area scroll the page; dedicated hand pans the model. */
+svg#cv.is-panning{touch-action:none;cursor:grab}
+svg#cv.is-panning:active{cursor:grabbing}
+svg#cv .node-touch-zone{fill:transparent;touch-action:none;pointer-events:all}
+.slider-ring{fill:var(--surface);stroke:var(--ink);stroke-width:3}
+.slider-halo{fill:none;stroke:var(--surface);stroke-width:11}
+.slider-guide{stroke:var(--muted);stroke-width:2.5;stroke-dasharray:4 4;opacity:.75}
+.slider-hit{fill:transparent;stroke:transparent;stroke-width:22;pointer-events:stroke}
+.first-member{stroke:var(--accent);stroke-width:13;opacity:.5;stroke-linecap:round}
+.action-tip{flex:1;margin:0;padding:7px 11px;border-radius:8px;background:var(--bg);border:1px solid var(--line);font-size:12px;color:var(--muted)}
+.action-tip strong{color:var(--accent)}
+.action-tip-row{display:flex;align-items:center;gap:8px;margin:0 10px 9px}
+.quick-slider{border:1px solid var(--accent);border-radius:8px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:700;padding:7px 12px;white-space:nowrap;cursor:pointer}
+@media(max-width:550px){.action-tip-row{align-items:stretch}.quick-slider{font-size:11px;padding:6px 8px}.action-tip{font-size:11px}}
+.navpad{position:absolute;left:9px;bottom:12px;display:flex;gap:4px;z-index:3;background:var(--surface);padding:4px;border:1px solid var(--line);border-radius:10px}
+.navpad button{background:var(--bg);border:1px solid var(--line);border-radius:7px;min-width:32px;min-height:32px;font-size:16px;cursor:pointer}
+@media(max-width:550px){.navpad{bottom:6px;left:6px}.navpad button{min-width:28px;min-height:29px}}
+</style>
+
+<div id="app" dir="rtl" lang="ar">
+<div class="wrap">
+  <header>
+    <h1>مختبر الاستقرار الإنشائي <small style="font-size:13px;font-weight:500;color:var(--muted)">نسخة 6.0</small></h1>
+    <p>صمّم منشأك بحرية، وحدّد مواضع العقد، وافحص الاستقرار الهندسي خطوة بخطوة.</p>
+  </header>
+
+  <div class="kindbar">
+    <div class="seg big" id="kindSeg" role="group" aria-label="نوع المنشأ"></div>
+    <span class="kindnote" id="kindNote"></span>
+  </div>
+
+  <details class="presets-panel"><summary><span>الأمثلة الهندسية الجاهزة</span><span class="details-hint">افتح مثالاً وتعلّم من نتائجه</span></summary>
+    <div class="presets" id="presets"></div>
+  </details>
+
+  <div class="main">
+    <section class="card canvas-card" id="cvCard" data-s="empty">
+      <div class="workbench-head"><span class="small-overline">لوحة الرسم التفاعلية</span><span class="workbench-prompt">مرّر الأدوات أفقياً لعرض البقية</span></div>
+      <div class="tools" id="tools" role="toolbar" aria-label="أدوات الرسم — اسحب أفقياً لرؤية جميع الأدوات"></div>
+      <div class="action-tip-row"><button type="button" class="quick-slider" id="quickSlider">◯ رولر بين عضوين</button><div class="action-tip" id="actionTip" role="status">اضغط الرولر ثم اختر العضو الأول والثاني.</div></div>
+
+
+      <div class="stage">
+        <div class="badge" id="badge" data-s="empty"><i></i><span id="badgeTxt">ارسم منشأً</span></div>
+        <svg id="cv" viewBox="0 0 700 500" role="img" aria-label="لوحة رسم المنشأ"></svg>
+        <div class="navpad" aria-label="تحريك مساحة الرسم">
+          <button id="panLeft" type="button" title="حرّك الرسم يساراً">←</button>
+          <button id="panRight" type="button" title="حرّك الرسم يميناً">→</button>
+          <button id="panUp" type="button" title="حرّك الرسم للأعلى">↑</button>
+          <button id="panDown" type="button" title="حرّك الرسم للأسفل">↓</button>
+        </div>
+      </div>
+      <div class="canvas-footer-note"><span>الرسم حر أو بدقة X / Y</span><span>•</span><span>الرولر الداخلي: اختر عضوين، ويظهر دائرة بين نهايتيهما</span></div>
+      <div class="hintbar">
+        <details class="tool-help"><summary>مساعدة الأداة المختارة</summary><span id="hint"></span></details>
+        <span class="acts">
+          <button class="ghost" id="undo" type="button">تراجع</button>
+          <button class="ghost" id="redo" type="button">إعادة</button>
+          <button class="ghost" id="clear" type="button">مسح</button>
+          <button class="ghost" id="exportModel" type="button">حفظ التصميم</button>
+          <button class="ghost" id="importModel" type="button">فتح تصميم</button>
+          <input id="importFile" type="file" accept=".json,application/json" hidden>
+        </span>
+      </div>
+      <details class="control-details"><summary><span>خيارات الرسم والشبكة</span><span class="details-hint">التكبير والمحاذاة والتحليل العرضي</span></summary>
+      <div class="optbar">
+        <span>الشبكة:</span>
+        <div class="seg" id="stepSeg" role="group" aria-label="خطوة الشبكة"></div>
+        <label class="chk"><input type="checkbox" id="orthoChk" checked> تثبيت أفقي/عمودي تلقائياً</label>
+        <button class="ghost" id="fit" type="button">ملاءمة الرسم</button>
+        <button class="ghost" id="zoomIn" type="button">تكبير +</button>
+        <button class="ghost" id="zoomOut" type="button">تصغير −</button>
+        <label class="chk" id="tvWrap" hidden><input type="checkbox" id="tvChk"> حمل عرضي فقط (إهمال الحركة الأفقية)</label>
+      </div>
+
+      </details>
+      <details class="control-details precise-panel" id="coordPanel"><summary><span>الرسم بالإحداثيات X / Y</span><span class="details-hint">أدخل الأبعاد الدقيقة</span></summary>
+      <div class="coord-card" id="coordCard">
+        <b>الرسم بالإحداثيات الدقيقة (متر)</b>
+        <p class="inote">حدّد إحداثيات البداية والنهاية ثم اضغط «ارسم العضو». الميزة تعمل حتى لو الرسم الحر بدون شبكة.</p>
+        <div class="coord-grid">
+          <label>بداية X <input id="cax" type="number" step="any" inputmode="decimal" value="2" aria-label="X البداية"></label>
+          <label>بداية Y <input id="cay" type="number" step="any" inputmode="decimal" value="4" aria-label="Y البداية"></label>
+          <label>نهاية X <input id="cbx" type="number" step="any" inputmode="decimal" value="8" aria-label="X النهاية"></label>
+          <label>نهاية Y <input id="cby" type="number" step="any" inputmode="decimal" value="4" aria-label="Y النهاية"></label>
+        </div>
+        <div class="coord-actions">
+          <button class="primary-btn" type="button" id="drawExact">ارسم العضو بالإحداثيات</button>
+          <button class="ghost" type="button" id="addExactNode">أضف نقطة البداية</button>
+          <button class="ghost" type="button" id="exactHorizontal">Y النهاية = Y البداية</button>
+          <button class="ghost" type="button" id="exactVertical">X النهاية = X البداية</button>
+          <span id="coordMessage" class="inote" role="status"></span>
+        </div>
+      </div>
+      </details>
+
+      <div class="insp" id="insp" hidden>
+        <div class="insp-h"><b id="inspT">—</b><button class="ghost" id="inspDel" type="button">حذف</button></div>
+        <div id="inspNode" hidden>
+          <div class="irow"><span class="il">المسند</span><div class="seg" id="segSup"></div></div>
+          <div class="irow" id="angRow">
+            <span class="il">الزاوية</span>
+            <input id="angIn" type="number" step="5" inputmode="decimal" placeholder="تلقائي" aria-label="زاوية المسند بالدرجات">
+            <span>°</span>
+            <button class="ghost" type="button" data-ang="0">0° عمودي</button>
+            <button class="ghost" type="button" data-ang="90">90° أفقي</button>
+            <button class="ghost" type="button" data-d="-15">−15°</button>
+            <button class="ghost" type="button" data-d="15">+15°</button>
+            <button class="ghost" type="button" data-ang="auto">تلقائي</button>
+          </div>
+          <p class="inote" id="angNote"></p>
+          <div class="irow"><span class="il">موضع النقطة (م)</span>
+            <span>X</span><input id="xIn" type="number" step="any" inputmode="decimal" aria-label="الإحداثي x">
+            <span>Y</span><input id="yIn" type="number" step="any" inputmode="decimal" aria-label="الإحداثي y">
+            <button class="ghost" type="button" id="applyNodePos">تطبيق X وY</button>
+          </div>
+          <p class="inote">في وضع Beam تغيير Y لأي نقطة يغيّر ارتفاع الجائز كله ويحافظ عليه مستقيماً.</p>
+        </div>
+        <div id="inspMem" hidden>
+          <div class="irow"><span class="il" id="endALbl"></span><div class="seg" id="segEa"></div></div>
+          <div class="irow"><span class="il" id="endBLbl"></span><div class="seg" id="segEb"></div></div>
+          <div class="irow"><span class="il">إحداثيات طرفي العضو (م)</span></div>
+          <div class="coord-grid">
+            <label>بداية X <input id="maX" type="number" step="any" inputmode="decimal"></label>
+            <label>بداية Y <input id="maY" type="number" step="any" inputmode="decimal"></label>
+            <label>نهاية X <input id="mbX" type="number" step="any" inputmode="decimal"></label>
+            <label>نهاية Y <input id="mbY" type="number" step="any" inputmode="decimal"></label>
+          </div>
+          <div class="coord-actions">
+            <button class="primary-btn" id="memApply" type="button">تطبيق إحداثيات العضو</button>
+            <button class="ghost" id="memHorizontal" type="button">جعله أفقياً</button>
+            <button class="ghost" id="memVertical" type="button">جعله عمودياً</button>
+          </div>
+          <p class="inote" id="memNote"></p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card panel" aria-live="polite">
+      <div class="verdict" id="verdict" data-s="empty">
+        <b><span id="vAr">ارسم منشأً</span><small id="vEn"></small></b>
+        <span class="pill" id="vClass"></span>
+        <p id="vSub">أضف عقدتين وعضواً بينهما ثم مسنداً، وسيظهر الحكم هنا.</p>
+      </div>
+      <dl class="stats" id="stats"></dl>
+      <div>
+        <p class="sub" id="fLabel">معادلة العد</p>
+        <div class="formula" id="formula">—</div>
+      </div>
+      <div class="checks" id="checks" hidden></div>
+      <div id="whyBox" hidden>
+        <p class="sub">سبب عدم الاستقرار</p>
+        <ul class="why" id="why"></ul>
+      </div>
+      <div class="modebox" id="modeBox" hidden>
+        <span id="modeTxt"></span>
+        <button class="ghost" id="modeNext" type="button">شكل الحركة التالي</button>
+      </div>
+      <p class="inote result-disclaimer">الفحص أولي وثنائي الأبعاد، ولا يشمل الأحمال أو الانبعاج أو الاستقرار من الدرجة الثانية. الأعضاء المتقاطعة لا تتصل إلا بعقدة صريحة.</p>
+      <details>
+        <summary>كيف يحكم الموقع؟</summary>
+        <p>يُمثَّل كل عضو كجسم صلب ثنائي الأبعاد له 3 درجات حرية. الوصلة الملتحمة تُساوي إزاحتي الطرفين ودورانهما، والمفصل يُساوي الإزاحتين فقط، والرولر الداخلي يقيّد فرق الإزاحة العمودية على محور العضو فقط. لا تُضاف درجات حرية وهمية للعقدة عند الرولرات الداخلية. نكشف الـMechanism بفحص رتبة مصفوفة القيود وليس معادلة العد وحدها؛ وتُحسب القيود الزائدة من عدد الصفوف ناقص الرتبة.</p>
+        <p>الحكم خطي هندسي من الدرجة الأولى (Infinitesimal stability)، ولا يشمل الانبعاج أو الاستقرار تحت أحمال فعلية. وقد تتطلب الحالات الهندسية الخاصة تحليلاً من الدرجة الثانية.</p>
+      </details>
+      <details>
+        <summary>المصادر والمعايير المعتمدة</summary>
+        <ul>
+          <li><b>Frame / Beam:</b> 3m + r مقابل 3j + ec. أقل: غير مستقر، يساوي: محدد، أكثر: غير محدد بالفرق. المفصل الداخلي يعطي n−1 معادلة شرط، والرولر الداخلي 2(n−1). المصدر: <a href="https://eng.libretexts.org/Bookshelves/Civil_Engineering/Structural_Analysis_(Udoeyo)/01:_Chapters/1.03:_Equilibrium_Structures_Support_Reactions_Determinacy_and_Stability_of_Beams_and_Frames" target="_blank" rel="noopener">Udoeyo, Structural Analysis (LibreTexts) §1.3</a> و<a href="https://learnaboutstructures.com/External-Indeterminacy" target="_blank" rel="noopener">Learn About Structures, External Indeterminacy</a>.</li>
+          <li><b>Truss:</b> m + r مقابل 2j، ويُقسم إلى خارجي r − 3 وداخلي m − (2j − 3). المصدر: <a href="https://structville.com/2020/09/static-and-kinematic-determinacy-of-structures.html" target="_blank" rel="noopener">Structville</a> و<a href="https://lbcc.pressbooks.pub/structuraldesign/chapter/chapter-5-trusses-2/" target="_blank" rel="noopener">LBCC Structural Design, Trusses</a>.</li>
+          <li><b>عدم الاستقرار الهندسي:</b> ردود فعل متوازية أو متقاطعة في نقطة واحدة تعني عدم استقرار مهما كان العدد كافياً (Udoeyo أعلاه). الفحص بالرتبة يلتقط هذه الحالات تلقائياً.</li>
+          <li><b>طريقة الرتبة:</b> رتبة مصفوفة القيود تفصل الحركات (mechanisms) عن القيود الزائدة (self-stress)، وهي فكرة Pellegrino &amp; Calladine (1986), Int. J. Solids Struct. 22(4), 409–428.</li>
+          <li><b>كتب مرجعية للمعادلات نفسها:</b> Kassimali, Structural Analysis؛ Hibbeler, Structural Analysis؛ Leet, Uang &amp; Gilbert, Fundamentals of Structural Analysis.</li>
+        </ul>
+      </details>
+    </aside>
+  </div>
+</div>
+</div>
+
+<script>
+/*ANALYSIS-START*/
+// 2D first-order infinitesimal stability: each member is a rigid body.
+// Constraints are imposed BETWEEN member ends, so internal rollers do not
+// introduce spurious free joint coordinates.
+function rref(A,cols){
+  const R=A.map(src=>{
+    const z=src.slice();const mx=Math.max(0,...z.map(Math.abs));
+    if(mx>0)for(let j=0;j<cols;j++)z[j]/=mx;
+    return z;
+  });
+  const piv=[];let row=0;
+  for(let c=0;c<cols&&row<R.length;c++){
+    let at=row,mx=0;
+    for(let i=row;i<R.length;i++){const v=Math.abs(R[i][c]);if(v>mx){mx=v;at=i;}}
+    if(mx<1e-9)continue;
+    [R[row],R[at]]=[R[at],R[row]];
+    const d=R[row][c];for(let j=c;j<cols;j++)R[row][j]/=d;
+    for(let i=0;i<R.length;i++){
+      if(i===row)continue;
+      const f=R[i][c];if(Math.abs(f)<1e-14)continue;
+      for(let j=c;j<cols;j++)R[i][j]-=f*R[row][j];
+    }
+    piv.push(c);row++;
+  }
+  return {R,piv};
+}
+function analyze(nodes,members,opts){
+  opts=opts||{};if(!members.length)return null;
+  const tv=!!opts.transverse,byId=new Map(nodes.map(n=>[n.id,n]));
+  const sliders=Array.isArray(opts.sliders)?opts.sliders:[];
+  const used=new Set(),lengths=[],ends=new Map(),M=members.length;
+  for(let q=0;q<M;q++){
+    const m=members[q],a=byId.get(m.a),b=byId.get(m.b);
+    if(!a||!b)return {error:'عضو يشير إلى عقدة غير موجودة.'};
+    const len=Math.hypot(b.x-a.x,b.y-a.y);
+    if(!Number.isFinite(len)||len<1e-8)return {error:'يوجد عضو بطول صفري أو إحداثيات غير صالحة.'};
+    lengths.push(len);used.add(m.a);used.add(m.b);
+    for(const [id,at,type] of [[m.a,'a',m.ea],[m.b,'b',m.eb]]){
+      if(!ends.has(id))ends.set(id,[]);
+      ends.get(id).push({q,at,type:type||'r'});
+    }
+  }
+  const nl=nodes.filter(n=>used.has(n.id)),N=nl.length,idx=new Map(nl.map((n,i)=>[n.id,i]));
+  const fullCols=3*M;const colU=q=>3*q,colV=q=>3*q+1,colT=q=>3*q+2;
+  const active=[];for(let q=0;q<M;q++)for(let j=0;j<3;j++)if(!(tv&&j===0))active.push(3*q+j);
+  const arr=()=>new Array(fullCols).fill(0),allRows=[];
+  const point=(r,e,nx,ny,sgn)=>{
+    const m=members[e.q],a=byId.get(m.a),b=byId.get(m.b);
+    r[colU(e.q)]+=sgn*nx;r[colV(e.q)]+=sgn*ny;
+    if(e.at==='b')r[colT(e.q)]+=sgn*(-(b.y-a.y)*nx+(b.x-a.x)*ny)/lengths[e.q];
+  };
+  const link=(a,b,nx,ny,tag='con')=>{const r=arr();point(r,a,nx,ny,1);point(r,b,nx,ny,-1);allRows.push({r,tag});};
+  const rotationLink=(a,b)=>{
+    const r=arr();r[colT(a.q)]+=1/lengths[a.q];r[colT(b.q)]-=1/lengths[b.q];allRows.push({r,tag:'con'});
+  };
+  const anchors=new Map(),warnings=[];
+  for(const n of nl){
+    const es=ends.get(n.id)||[];
+    const standard=es.filter(e=>e.type!=='i');
+    const rigid=standard.filter(e=>e.type==='r');
+    const base=rigid[0]||standard[0]||es[0];
+    anchors.set(n.id,base);
+    if(standard.length){
+      for(const e of standard)if(e!==base){link(e,base,1,0);link(e,base,0,1);}
+      if(rigid.length>1)for(let j=1;j<rigid.length;j++)rotationLink(rigid[j],rigid[0]);
+      for(const e of es.filter(e=>e.type==='i')){
+        const m=members[e.q],a=byId.get(m.a),b=byId.get(m.b),L=lengths[e.q];
+        link(e,base,-(b.y-a.y)/L,(b.x-a.x)/L);
+      }
+    }else if(es.length>1){
+      // A node consisting only of slider ends has one reference member.
+      // Different slider normals are possible but imply custom joint geometry.
+      const m=members[base.q],a=byId.get(m.a),b=byId.get(m.b),L=lengths[base.q];
+      const nx=-(b.y-a.y)/L,ny=(b.x-a.x)/L;
+      for(const e of es)if(e!==base)link(e,base,nx,ny);
+      if(es.length>2)warnings.push('وصلة رولرات متعددة: اتجاه الانزلاق مُعرّف باتجاه أول عضو.');
+    }
+  }
+  // User-created rollers link the selected member ends by ONE normal displacement constraint.
+  const uidIndex=new Map(members.map((m,i)=>[m.uid,i]));
+  for(const s of sliders){
+    const aq=uidIndex.get(s.am),bq=uidIndex.get(s.bm);
+    if(aq===undefined||bq===undefined)continue;
+    const a=members[aq],an=byId.get(a.a),bn=byId.get(a.b),L=lengths[aq];
+    link({q:aq,at:s.ae},{q:bq,at:s.be},-(bn.y-an.y)/L,(bn.x-an.x)/L);
+  }
+  for(const n of nl){
+    const s=n.sup,base=anchors.get(n.id);if(!s||!base)continue;
+    function support(nx,ny){const r=arr();point(r,base,nx,ny,1);allRows.push({r,tag:'sup'});}
+    if(s.t==='pin'||s.t==='fix'){
+      support(1,0);support(0,1);
+      if(s.t==='fix'&&ends.get(n.id).some(e=>e.type==='r')){
+        const r=arr(),anchorRigid=ends.get(n.id).find(e=>e.type==='r');
+        r[colT(anchorRigid.q)]=1/lengths[anchorRigid.q];allRows.push({r,tag:'sup'});
+      }else if(s.t==='fix')warnings.push('وثيق عند عقدة كل أطرافها مفصلية: لا ينتقل عزم إلى الأعضاء، ويعمل كمسند مفصلي فعلياً.');
+    }else if(s.t==='roller'){
+      const angle=(s.a==null?0:s.a)*Math.PI/180;
+      support(Math.sin(angle),Math.cos(angle));
+    }
+  }
+  const rows=allRows.map(o=>({r:active.map(j=>o.r[j]),tag:o.tag}))
+    .filter(o=>o.r.some(v=>Math.abs(v)>1e-11));
+  const con=rows.filter(o=>o.tag==='con').length,R=rows.filter(o=>o.tag==='sup').length,cols=active.length;
+  const red=rref(rows.map(o=>o.r),cols),rank=red.piv.length,nullity=cols-rank,DI=rows.length-rank;
+  const conditions=(tv?2:3)*(2*M-N)-con;
+  const DIf=(tv?2:3)*M+R-(tv?2:3)*N-conditions;
+  const ix={nU:k=>3*k,nV:k=>3*k+1,nP:k=>3*k+2,
+    mU:q=>3*N+3*q,mV:q=>3*N+3*q+1,mT:q=>3*N+3*q+2};
+  const pset=new Set(red.piv),modes=[];
+  for(let free=0;free<cols;free++){
+    if(pset.has(free))continue;
+    const z=new Array(cols).fill(0);z[free]=1;
+    red.piv.forEach((cc,i)=>{z[cc]=-red.R[i][free];});
+    const v=new Array(3*N+fullCols).fill(0);
+    for(let k=0;k<active.length;k++){
+      const j=active[k],q=Math.floor(j/3),t=j%3;
+      v[3*N+j]=t===2?z[k]/lengths[q]:z[k];
+    }
+    for(let k=0;k<N;k++){
+      const n=nl[k],e=anchors.get(n.id),m=members[e.q],a=byId.get(m.a),b=byId.get(m.b);
+      const theta=v[ix.mT(e.q)],u=v[ix.mU(e.q)],w=v[ix.mV(e.q)];
+      v[ix.nU(k)]=u+(e.at==='b'?-(b.y-a.y)*theta:0);
+      v[ix.nV(k)]=w+(e.at==='b'?(b.x-a.x)*theta:0);
+      v[ix.nP(k)]=theta;
+    }
+    modes.push(v);
+  }
+  const movN=new Set(),movM=new Set();
+  for(const v of modes){
+    let md=0;
+    for(let k=0;k<N;k++)md=Math.max(md,Math.hypot(v[ix.nU(k)],v[ix.nV(k)]));
+    for(let q=0;q<M;q++){
+      const m=members[q],a=byId.get(m.a),b=byId.get(m.b),dx=b.x-a.x,dy=b.y-a.y;
+      const u=v[ix.mU(q)],w=v[ix.mV(q)],theta=v[ix.mT(q)];
+      md=Math.max(md,Math.hypot(u,w),Math.hypot(u-theta*dy,w+theta*dx));
+    }
+    const fac=md>1e-11?1/md:1;for(let k=0;k<v.length;k++)v[k]*=fac;
+    for(let k=0;k<N;k++)if(Math.hypot(v[ix.nU(k)],v[ix.nV(k)])>0.03)movN.add(nl[k].id);
+    for(let q=0;q<M;q++){
+      const m=members[q],a=byId.get(m.a),b=byId.get(m.b),dx=b.x-a.x,dy=b.y-a.y;
+      const u=v[ix.mU(q)],w=v[ix.mV(q)],theta=v[ix.mT(q)];
+      if(Math.hypot(u,w)>0.03||Math.hypot(u-theta*dy,w+theta*dx)>0.03||Math.abs(theta)*lengths[q]>0.02)movM.add(q);
+    }
+  }
+  const parent=new Map(nl.map(n=>[n.id,n.id]));
+  const root=x=>{while(parent.get(x)!==x){parent.set(x,parent.get(parent.get(x)));x=parent.get(x);}return x;};
+  members.forEach(m=>parent.set(root(m.a),root(m.b)));
+  for(const s of sliders){const am=members[uidIndex.get(s.am)],bm=members[uidIndex.get(s.bm)];if(am&&bm)parent.set(root(am[s.ae]),root(bm[s.be]));}
+  const comps=new Set(nl.map(n=>root(n.id))).size;
+  // Global force-and-moment equilibrium rank of external supports.
+  const ext=[];for(const n of nl){
+    if(!n.sup)continue;
+    const sup=n.sup,rs=[];
+    if(sup.t==='roller'){
+      const a=(sup.a==null?0:sup.a)*Math.PI/180;
+      rs.push([Math.sin(a),Math.cos(a)]);
+    }else{rs.push([1,0],[0,1]);}
+    for(const [fx,fy] of rs)ext.push([fx,fy,n.x*fy-n.y*fx]);
+    if(sup.t==='fix'&&ends.get(n.id).some(e=>e.type==='r'))ext.push([0,0,1]);
+  }
+  for(const s of sliders){
+    const am=members[uidIndex.get(s.am)],bm=members[uidIndex.get(s.bm)];
+    if(!am||!bm)continue;
+    const x=byId.get(am[s.ae]),y=byId.get(bm[s.be]);
+    const d=Math.hypot(x.x-y.x,x.y-y.y);
+    if(d>1e-5)warnings.push('رولر بين نهايتين غير متطابقتين هندسياً: اعتُبر قيداً حركياً واحداً، والرسم تخطيطي لاتصال غير مباشر.');
+  }
+  const externalRank=rref(ext,3).piv.length;
+  const forceRank=rref(ext.filter(v=>Math.hypot(v[0],v[1])>1e-12).map(v=>v.slice(0,2)),2).piv.length;
+  const externalPattern=externalRank===3?'ok':forceRank<=1&&ext.length>=2?'parallel':ext.length<3?'insufficient':'concurrent';
+  return {N,M,R,C:conditions,con,rows:rows.length,cols,rank,nullity,DI,DIf,modes,movN,movM,comps,nl,idx,tv,ix,externalRank,externalPattern,warnings};
+}
+/*ANALYSIS-END*/
+
+
+
+(function(){
+  const BEAM_DEFAULT_Y=4;
+  let S=50,OX=50,OY=450;
+  function ensureDefaults(){
+    if(!st.view)st.view={minX:0,maxX:12,minY:0,maxY:8};
+    if(!Number.isFinite(st.beamY))st.beamY=BEAM_DEFAULT_Y;
+    if(typeof st.ortho!=='boolean')st.ortho=true;
+    if(!Number.isFinite(st.step))st.step=0;
+    if(!Array.isArray(st.sliders))st.sliders=[];
+    if(!Number.isInteger(st.mid))st.mid=1;
+    if(!Number.isInteger(st.sid))st.sid=1;
+  }
+  function projection(){
+    ensureDefaults();const v=st.view;
+    const dx=Math.max(.001,v.maxX-v.minX),dy=Math.max(.001,v.maxY-v.minY);
+    S=Math.min(600/dx,400/dy);
+    OX=350-S*(v.minX+v.maxX)/2;
+    OY=250+S*(v.minY+v.maxY)/2;
+  }
+  const X=x=>OX+x*S, Y=y=>OY-y*S;
+  const $=id=>document.getElementById(id);
+  const svg=$('cv');
+  const eq=(a,b)=>Math.abs(a-b)<1e-6;
+  const LET='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lab=i=>i<26?LET[i]:LET[i%26]+Math.floor(i/26);
+  const RM=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const ICONS={
+    select:'<path d="M6 3l12 8-5.5 1.5L10 18z"/>',
+    node:'<circle cx="12" cy="12" r="3.5" fill="currentColor"/><circle cx="12" cy="12" r="8"/>',
+    member:'<path d="M5 19L19 5"/><circle cx="5" cy="19" r="2.4" fill="currentColor"/><circle cx="19" cy="5" r="2.4" fill="currentColor"/>',
+    pin:'<path d="M12 4l-6 11h12z"/><path d="M4 19h16"/>',
+    roller:'<path d="M12 3l-5 9h10z"/><circle cx="9" cy="15.5" r="1.8"/><circle cx="15" cy="15.5" r="1.8"/><path d="M4 19.5h16"/>',
+    fix:'<path d="M4 9h16"/><path d="M5 9l-2 5M9 9l-2 5M13 9l-2 5M17 9l-2 5M21 9l-2 5"/><circle cx="12" cy="9" r="2" fill="currentColor"/>',
+    hinge:'<path d="M3 12h5M16 12h5"/><circle cx="12" cy="12" r="4"/>',
+    iroller:'<circle cx="12" cy="12" r="6.4"/><circle cx="12" cy="12" r="9.2" stroke-dasharray="2 3"/>' ,
+    pan:'<path d="M7 12V6a2 2 0 014 0v5-7a2 2 0 014 0v7-5a2 2 0 014 0v9l-2 5H10L5 15a2 2 0 012-3z"/>',
+    erase:'<path d="M6 6l12 12M18 6L6 18"/>'
+  };
+  const TOOLS=[
+    {id:'select',t:'تحديد',k:'fbt',h:'اضغط عقدة أو عضواً لتحديده وتعديل خصائصه من اللوحة أسفل الرسم، واسحب العقدة لتحريكها.'},
+    {id:'node',t:'عقدة',k:'fbt',h:'اضغط على الشبكة لإضافة عقدة. إذا وقعت على عضو فإنه ينقسم عندها.'},
+    {id:'member',t:'عضو',k:'fbt',h:'اضغط عقدة البداية ثم عقدة النهاية. الضغط على نقطة فارغة ينشئ عقدة.'},
+    {id:'pin',t:'مثبت',k:'fbt',h:'مسند مثبت (Hinge support): رداً فعل ويسمح بالدوران. بعد وضعه يُحدد لتعديل زاويته.'},
+    {id:'roller',t:'متحرك',k:'fbt',h:'مسند متحرك (Roller): رد فعل واحد. الزاوية 0° رد فعل عمودي (يتحرك أفقياً) و90° رد فعل أفقي.'},
+    {id:'fix',t:'وثيق',k:'fbt',h:'مسند وثيق (Fixed): 3 ردود فعل. اضغط مرة ثانية على نفس العقدة لإزالته.'},
+    {id:'hinge',t:'مفصل',k:'fbt',h:'مفصل داخلي: اضغط نقطة العقدة ليصير مفصلاً لكل الأعضاء، أو طرف العضو لتحرير ذلك الطرف فقط.'},
+    {id:'iroller',t:'رولر داخلي',k:'fbt',h:'رولر داخلي: اختر العضو الأول، ثم العضو الثاني. تُنشأ وصلة انزلاق بقيد واحد عند أقرب نهايتين، ويظهر رمزها دائرة. اتجاه الانزلاق يوازي العضو الأول.'},
+    {id:'pan',t:'تحريك اللوحة',k:'fbt',h:'اسحب لوحة الرسم للأعلى والأسفل أو لليمين واليسار بدون تحريك أي عقدة. وبالوضع العادي اسحب على فراغ اللوحة لتمرير الصفحة.'},
+    {id:'erase',t:'حذف',k:'fbt',h:'اضغط على عقدة أو عضو لحذفه. تگدر تحذف وصلة الرولر بالضغط على دائرتها.'}
+  ];
+  const KINDS=[
+    {id:'frame',t:'إطار Frame',n:'أعضاء ملتحمة بعقد صلبة، ويمكن إضافة مفاصل ورولر داخلي وكل أنواع المساند.'},
+    {id:'beam',t:'جائز Beam',n:'أعضاء على خط أفقي واحد (الارتفاع ثابت). يقبل المفاصل والرولر الداخلي والمساند.'},
+    {id:'truss',t:'ترس Truss',n:'جميع الأدوات متاحة. الترس المفصلي يُحل بمعادلات الترس؛ عند إضافة وثيق/ملتحم/رولر داخلي يتحول التحليل إلى نموذج إطار مختلط، ويُوضّح ذلك في النتائج.'}
+  ];
+  const PRESETS=[
+    {k:'frame',t:'بوابة بمسندين مثبتين',n:[[2,0,'pin'],[2,4],[8,4],[8,0,'pin']],m:[[0,1],[1,2],[2,3]]},
+    {k:'frame',t:'بوابة بقواعد وثيقة',n:[[2,0,'fix'],[2,4],[8,4],[8,0,'fix']],m:[[0,1],[1,2],[2,3]]},
+    {k:'frame',t:'ثلاثي المفاصل',n:[[2,0,'pin'],[2,4],[5,6],[8,4],[8,0,'pin']],m:[[0,1],[1,2,'r','h'],[2,3,'h','r'],[3,4]]},
+    {k:'frame',t:'بوابة بمفصلين علويين',n:[[2,0,'pin'],[2,4],[8,4],[8,0,'pin']],m:[[0,1,'r','h'],[1,2,'h','h'],[2,3,'h','r']]},
+    {k:'frame',t:'بوابة بمسندين متحركين',n:[[2,0,'roller'],[2,4],[8,4],[8,0,'roller']],m:[[0,1],[1,2],[2,3]]},
+    {k:'frame',t:'ثلاث ردود أفعال متلاقية',n:[[2,1,['roller',56.30993247]],[8,1,['roller',-56.30993247]],[5,6,['roller',180]]],m:[[0,1],[1,2],[2,0]]},
+    {k:'frame',t:'كابولي L',n:[[2,0,'fix'],[2,5],[8,5]],m:[[0,1],[1,2]]},
+    {k:'frame',t:'إطار طابقين',n:[[2,0,'fix'],[2,3],[2,6],[8,6],[8,3],[8,0,'fix']],m:[[0,1],[1,2],[2,3],[3,4],[4,5],[1,4]]},
+    {k:'frame',t:'جائز مثل الرسم: وثيق + رولر داخلي',n:[[1,4,'fix'],[6,4],[11,4,'roller']],m:[[0,1,'r','i'],[1,2,'i','r']]},
+    {k:'frame',t:'إطار برولر داخلي',n:[[2,0,'fix'],[2,4],[8,4],[8,0,'pin']],m:[[0,1,'r','i'],[1,2],[2,3]]},
+    {k:'frame',t:'رولر داخلي ورد فعل متقاطع',n:[[2,0,'fix'],[2,4],[8,4,'pin']],m:[[0,1,'r','i'],[1,2]]},
+    {k:'beam',t:'مثل الرسم: وثيق + رولر داخلي + رولر',n:[[1,4,'fix'],[6,4],[11,4,'roller']],m:[[0,1,'r','i'],[1,2,'i','r']]},
+    {k:'beam',t:'بسيط',n:[[1,4,'pin'],[11,4,'roller']],m:[[0,1]]},
+    {k:'beam',t:'كابولي',n:[[1,4,'fix'],[8,4]],m:[[0,1]]},
+    {k:'beam',t:'مستمر بفتحتين',n:[[1,4,'pin'],[6,4,'roller'],[11,4,'roller']],m:[[0,1],[1,2]]},
+    {k:'beam',t:'جربر (مفصل داخلي)',n:[[1,4,'fix'],[6,4],[10,4,'roller']],m:[[0,1,'r','h'],[1,2,'h','r']]},
+    {k:'beam',t:'رولر داخلي',n:[[1,4,'fix'],[6,4],[11,4,'pin']],m:[[0,1],[1,2,'i','r']]},
+    {k:'beam',t:'مسندان متحركان فقط',n:[[1,4,['roller',0]],[11,4,['roller',0]]],m:[[0,1]]},
+    {k:'beam',t:'مفصل ومسندان بسيطان',n:[[1,4,'pin'],[6,4],[11,4,'roller']],m:[[0,1,'r','h'],[1,2,'h','r']]},
+    {k:'truss',t:'مثلث بسيط',n:[[2,0,'pin'],[8,0,'roller'],[5,5]],m:[[0,1],[1,2],[2,0]]},
+    {k:'truss',t:'Warren',n:[[1,0,'pin'],[4,0],[7,0],[10,0,'roller'],[2.5,3],[5.5,3],[8.5,3]],m:[[0,1],[1,2],[2,3],[4,5],[5,6],[0,4],[4,1],[1,5],[5,2],[2,6],[6,3]]},
+    {k:'truss',t:'مستطيل بلا قطر',n:[[2,0,'pin'],[8,0,'roller'],[8,4],[2,4]],m:[[0,1],[1,2],[2,3],[3,0]]},
+    {k:'truss',t:'مستطيل بقطرين',n:[[2,0,'pin'],[8,0,'roller'],[8,4],[2,4]],m:[[0,1],[1,2],[2,3],[3,0],[0,2],[1,3]]},
+    {k:'truss',t:'مثلث بمسندين مثبتين',n:[[2,0,'pin'],[8,0,'pin'],[5,5]],m:[[0,1],[1,2],[2,0]]}
+  ];
+
+  let st={kind:'frame',nodes:[],members:[],sliders:[],nid:1,mid:1,sid:1,step:0,tv:false,ortho:true,beamY:4,view:{minX:0,maxX:12,minY:0,maxY:8}};
+  let tool='select',sel=null,pending=null,rollerFirst=null,panDrag=null,hist=[],fut=[],drag=null,res=null,mi=0;
+
+  const snapshot=()=>JSON.stringify(st);
+  const nodeById=id=>st.nodes.find(n=>n.id===id);
+  const defEnd=()=>st.kind==='truss'?'h':'r';
+  const nodeIndex=n=>st.nodes.indexOf(n);
+
+  function pushHist(before){hist.push(before);if(hist.length>80)hist.shift();fut.length=0;}
+  function edit(fn){
+    const before=snapshot();
+    fn();
+    if(sel&&sel.type==='member'&&!st.members[sel.idx])sel=null;
+    if(snapshot()!==before)pushHist(before);
+    refresh();
+  }
+  function restore(s){st=JSON.parse(s);ensureDefaults();sel=null;pending=null;rollerFirst=null;panDrag=null;syncKindUI();}
+  function mkSup(s){if(!s)return null;if(typeof s==='string')return {t:s,a:null};return {t:s[0],a:s[1]};}
+  function loadPreset(p){
+    const before=snapshot(),had=st.nodes.length>0;
+    st.kind=p.k;st.nodes=[];st.members=[];st.sliders=[];st.nid=1;st.mid=1;st.sid=1;st.tv=false;
+    st.step=0;st.beamY=BEAM_DEFAULT_Y;st.view={minX:0,maxX:12,minY:0,maxY:8};st.ortho=true;
+    p.n.forEach(a=>st.nodes.push({id:st.nid++,x:a[0],y:a[1],sup:mkSup(a[2])}));
+    const d=p.k==='truss'?'h':'r';
+    p.m.forEach(a=>st.members.push({uid:st.mid++,a:st.nodes[a[0]].id,b:st.nodes[a[1]].id,ea:a[2]||d,eb:a[3]||d}));
+    if(had)pushHist(before);
+    sel=null;pending=null;rollerFirst=null;panDrag=null;mi=0;
+    fitView();syncKindUI();refresh();
+  }
+  function switchKind(k){
+    if(st.kind===k)return;
+    loadPreset(PRESETS.find(p=>p.k===k));
+  }
+
+  /* ---------- geometry helpers ---------- */
+  function pt(e){
+    const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;
+    return p.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  function snapG(q){
+    const s=st.step;
+    const round=v=>s>0?Math.round(v/s)*s:Math.round(v*1000)/1000;
+    const gx=round((q.x-OX)/S);
+    let gy=round((OY-q.y)/S);
+    if(st.kind==='beam')gy=st.beamY;
+    return {x:gx,y:gy};
+  }
+  function fitView(){
+    ensureDefaults();
+    if(!st.nodes.length){st.view={minX:0,maxX:12,minY:0,maxY:8};projection();return;}
+    const xx=st.nodes.map(n=>n.x),yy=st.nodes.map(n=>n.y);
+    const cx=(Math.min(...xx)+Math.max(...xx))/2,cy=(Math.min(...yy)+Math.max(...yy))/2;
+    const spanX=Math.max(6,(Math.max(...xx)-Math.min(...xx))*1.28+1);
+    const spanY=Math.max(5,(Math.max(...yy)-Math.min(...yy))*1.34+1);
+    st.view={minX:cx-spanX/2,maxX:cx+spanX/2,minY:cy-spanY/2,maxY:cy+spanY/2};
+    projection();
+  }
+  function includePoint(x,y){
+    ensureDefaults();const v=st.view;
+    if(x<v.minX){v.minX=x-Math.max(.5,(v.maxX-v.minX)*.08);}
+    if(x>v.maxX){v.maxX=x+Math.max(.5,(v.maxX-v.minX)*.08);}
+    if(y<v.minY){v.minY=y-Math.max(.5,(v.maxY-v.minY)*.08);}
+    if(y>v.maxY){v.maxY=y+Math.max(.5,(v.maxY-v.minY)*.08);}
+    projection();
+  }
+  function zoomView(factor){
+    const v=st.view,cx=(v.minX+v.maxX)/2,cy=(v.minY+v.maxY)/2;
+    const halfW=Math.max(.001,(v.maxX-v.minX)*factor/2),halfH=Math.max(.001,(v.maxY-v.minY)*factor/2);
+    edit(()=>{st.view={minX:cx-halfW,maxX:cx+halfW,minY:cy-halfH,maxY:cy+halfH};});
+  }
+  function axisLock(g,start){
+    if(!st.ortho||!start||st.kind==='beam')return g;
+    const dx=g.x-start.x,dy=g.y-start.y;
+    if(Math.abs(dy)<=Math.abs(dx)*.18)return {x:g.x,y:start.y};
+    if(Math.abs(dx)<=Math.abs(dy)*.18)return {x:start.x,y:g.y};
+    return g;
+  }
+  function moveNode(n,x,y){
+    if(!Number.isFinite(x)||!Number.isFinite(y)||Math.abs(x)>1e7||Math.abs(y)>1e7)return false;
+    if(st.kind==='beam'){
+      const delta=y-st.beamY;
+      if(Math.abs(delta)>1e-10){for(const u of st.nodes)u.y+=delta;st.beamY=y;}
+      y=st.beamY;
+    }
+    if(st.nodes.some(o=>o!==n&&Math.hypot(o.x-x,o.y-y)<1e-8))return false;
+    for(const m of st.members){
+      if(m.a!==n.id&&m.b!==n.id)continue;
+      const o=nodeById(m.a===n.id?m.b:m.a);
+      if(o&&Math.hypot(o.x-x,o.y-y)<1e-8)return false;
+    }
+    n.x=x;n.y=y;includePoint(x,y);return true;
+  }
+  function nodeNear(q,r){
+    let b=null,bd=r;
+    for(const n of st.nodes){const d=Math.hypot(X(n.x)-q.x,Y(n.y)-q.y);if(d<=bd){bd=d;b=n;}}
+    return b;
+  }
+  const nodeAtGrid=g=>st.nodes.find(n=>eq(n.x,g.x)&&eq(n.y,g.y));
+  function segHit(q,m){
+    const a=nodeById(m.a),b=nodeById(m.b);
+    const ax=X(a.x),ay=Y(a.y),bx=X(b.x),by=Y(b.y);
+    const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;
+    let t=((q.x-ax)*dx+(q.y-ay)*dy)/L2;t=Math.max(0,Math.min(1,t));
+    return {d:Math.hypot(q.x-(ax+t*dx),q.y-(ay+t*dy)),t};
+  }
+  // Prefer the exact point on a nearby element, or the exact intersection
+  // of two elements, over an imprecise finger-tap coordinate.
+  function snapToGeometry(q,g){
+    let best=null,bestD=13;
+    for(let i=0;i<st.members.length;i++){
+      const m=st.members[i],h=segHit(q,m);
+      if(h.d<bestD&&h.t>.025&&h.t<.975){bestD=h.d;best={i,t:h.t};}
+    }
+    if(!best)return g;
+    for(let i=0;i<st.members.length;i++)for(let j=i+1;j<st.members.length;j++){
+      const A=nodeById(st.members[i].a),B=nodeById(st.members[i].b),C=nodeById(st.members[j].a),D=nodeById(st.members[j].b);
+      const dx=B.x-A.x,dy=B.y-A.y,ex=D.x-C.x,ey=D.y-C.y,det=dx*ey-dy*ex;
+      if(Math.abs(det)<1e-10)continue;
+      const t=((C.x-A.x)*ey-(C.y-A.y)*ex)/det;
+      const u=((C.x-A.x)*dy-(C.y-A.y)*dx)/det;
+      if(t<.001||t>.999||u<.001||u>.999)continue;
+      const p={x:A.x+t*dx,y:A.y+t*dy};
+      if(Math.hypot(X(p.x)-q.x,Y(p.y)-q.y)<13)return p;
+    }
+    const m=st.members[best.i],a=nodeById(m.a),b=nodeById(m.b);
+    return {x:a.x+(b.x-a.x)*best.t,y:a.y+(b.y-a.y)*best.t};
+  }
+  function addNode(g){const n={id:st.nid++,x:g.x,y:g.y,sup:null};st.nodes.push(n);includePoint(g.x,g.y);return n;}
+  function ensureNode(g){
+    let n=nodeAtGrid(g);
+    if(!n)n=addNode(g);
+    for(let i=st.members.length-1;i>=0;i--){
+      const m=st.members[i],a=nodeById(m.a),b=nodeById(m.b);
+      const cr=(b.x-a.x)*(n.y-a.y)-(b.y-a.y)*(n.x-a.x);
+      const dt=(n.x-a.x)*(b.x-a.x)+(n.y-a.y)*(b.y-a.y),L2=(b.x-a.x)**2+(b.y-a.y)**2;
+      if(Math.abs(cr)<1e-7*Math.max(1,Math.sqrt(L2))&&dt>1e-8&&dt<L2-1e-8){
+        const old=m.eb;m.b=n.id;m.eb=defEnd();
+        const extension={uid:st.mid++,a:n.id,b:b.id,ea:defEnd(),eb:old};
+        st.members.push(extension);
+        for(const slider of st.sliders){
+          for(const prefix of ['a','b'])if(slider[prefix+'m']===m.uid&&slider[prefix+'e']==='b')slider[prefix+'m']=extension.uid;
+        }
+      }
+    }
+    return n;
+  }
+  function addMember(a,b){
+    if(a===b)return;
+    if(st.members.some(m=>(m.a===a&&m.b===b)||(m.a===b&&m.b===a)))return;
+    const ea=st.kind==='truss'&&nodeById(a).sup&&nodeById(a).sup.t==='fix'?'r':defEnd();
+    const eb=st.kind==='truss'&&nodeById(b).sup&&nodeById(b).sup.t==='fix'?'r':defEnd();
+    st.members.push({uid:st.mid++,a,b,ea,eb});
+  }
+  function splitAtMember(index,t){
+    const m=st.members[index];if(!m)return null;
+    const a=nodeById(m.a),b=nodeById(m.b);
+    if(t<=.001)return a;if(t>=.999)return b;
+    const p={x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};
+    return ensureNode(p);
+  }
+  function realTruss(){return st.kind==='truss'&&!st.sliders.length&&st.members.every(m=>m.ea==='h'&&m.eb==='h');}
+  function memberByUid(uid){return st.members.find(m=>m.uid===uid);}
+  function endpoint(m,e){return nodeById(m[e]);}
+  function sliderCenter(sl){
+    const a=memberByUid(sl.am),b=memberByUid(sl.bm);
+    if(!a||!b)return null;
+    const x=endpoint(a,sl.ae),y=endpoint(b,sl.be);
+    if(!x||!y)return null;
+    return {x:(x.x+y.x)/2,y:(x.y+y.y)/2,ax:x.x,ay:x.y,bx:y.x,by:y.y};
+  }
+  function sliderNear(q,maxPx=23){
+    let best=null,bestD=maxPx;
+    for(const slider of st.sliders){
+      const c=sliderCenter(slider);if(!c)continue;
+      const d=Math.hypot(X(c.x)-q.x,Y(c.y)-q.y);
+      if(d<bestD){best=slider;bestD=d;}
+    }
+    return best;
+  }
+  function findMemberAt(q){
+    let best=-1,dist=17;
+    st.members.forEach((m,i)=>{const h=segHit(q,m);if(h.d<dist){dist=h.d;best=i;}});
+    return best>=0?st.members[best]:null;
+  }
+  function sliderStatus(message){$('actionTip').textContent=message;}
+  function chooseRollerMember(m){
+    if(rollerFirst===null){
+      rollerFirst=m.uid;
+      sliderStatus('✓ اخترت الضلع الأول. هسه اضغط على الضلع الثاني حتى تنرسم الدائرة بين نهايتيهما.');
+      render();return;
+    }
+    if(rollerFirst===m.uid){
+      rollerFirst=null;sliderStatus('ألغيت الاختيار. اضغط على الضلع الأول، وبعده الثاني.');render();return;
+    }
+    const a=memberByUid(rollerFirst),b=m;
+    rollerFirst=null;if(!a){sliderStatus('الضلع الأول ما عاد موجوداً؛ اختاره مجدداً.');render();return;}
+    const sides=['a','b'];let best=null,score=Infinity;
+    for(const ae of sides)for(const be of sides){
+      const x=endpoint(a,ae),y=endpoint(b,be);
+      if(!x||!y)continue;
+      const d=Math.hypot(x.x-y.x,x.y-y.y);
+      if(d<score){score=d;best={ae,be,x,y};}
+    }
+    if(!best)return;
+    if(st.sliders.some(s=>(s.am===a.uid&&s.ae===best.ae)||(s.bm===a.uid&&s.be===best.ae)||(s.am===b.uid&&s.ae===best.be)||(s.bm===b.uid&&s.be===best.be))){
+      sliderStatus('هذه النهاية مرتبطة برولر آخر. احذفه أولاً أو اختر نهايتين مختلفتين.');render();return;
+    }
+    edit(()=>{
+      let clone=null,original=null;
+      if(best.x.id===best.y.id){
+        original=best.y.id;
+        clone=st.nid++;
+        st.nodes.push({id:clone,x:best.y.x,y:best.y.y,sup:null});
+        b[best.be]=clone;
+      }
+      st.sliders.push({id:st.sid++,am:a.uid,ae:best.ae,bm:b.uid,be:best.be,clone,original});
+      sel=null;
+    });
+    const gap=score>1e-6?' (المسافة بين نهايتيهما '+score.toFixed(2)+' م)':'';
+    sliderStatus('✓ تم الربط: الرولر دائرة بين الضلعين، واتجاه انزلاقه يوازي الضلع الأول.'+gap);
+  }
+  function removeSlider(sl){
+    const b=memberByUid(sl.bm);
+    if(sl.clone&&b&&b[sl.be]===sl.clone){b[sl.be]=sl.original;}
+    st.sliders=st.sliders.filter(s=>s.id!==sl.id);
+    if(sl.clone&&!st.members.some(m=>m.a===sl.clone||m.b===sl.clone))st.nodes=st.nodes.filter(n=>n.id!==sl.clone);
+  }
+  function dropSlidersForMember(uid){
+    for(const sl of [...st.sliders])if(sl.am===uid||sl.bm===uid)removeSlider(sl);
+  }
+  function removeNode(id){
+    for(const m of [...st.members])if(m.a===id||m.b===id)dropSlidersForMember(m.uid);
+    st.nodes=st.nodes.filter(n=>n.id!==id);
+    st.members=st.members.filter(m=>m.a!==id&&m.b!==id);
+    if(pending===id)pending=null;
+    sel=null;
+  }
+  function deleteSel(){
+    if(!sel)return;
+    edit(()=>{
+      if(sel.type==='node')removeNode(sel.id);
+      else if(sel.type==='slider'){const sl=st.sliders.find(s=>s.id===sel.id);if(sl)removeSlider(sl);sel=null;}
+      else{dropSlidersForMember(st.members[sel.idx].uid);st.members.splice(sel.idx,1);sel=null;}
+    });
+  }
+
+  /* ---------- pointer input ---------- */
+  svg.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    const q=pt(e),g=snapG(q);
+    if(tool==='pan'){
+      panDrag={start:q,view:{...st.view},before:snapshot(),moved:false,scale:S};
+      try{svg.setPointerCapture(e.pointerId);}catch(_){}
+      return;
+    }
+    if(tool==='iroller'){
+      const m=findMemberAt(q);
+      if(m)chooseRollerMember(m);
+      else sliderStatus('اضغط على خط الضلع الأول، وبعدها على خط الضلع الثاني.');
+      return;
+    }
+    if(tool==='select'){
+      const sl=sliderNear(q);
+      if(sl){sel={type:'slider',id:sl.id};syncInsp();render();return;}
+      const n=nodeNear(q,22);
+      if(n){
+        sel={type:'node',id:n.id};
+        drag={id:n.id,before:snapshot(),moved:false};
+        try{svg.setPointerCapture(e.pointerId);}catch(_){}
+      }else{
+        let best=-1,bd=12;
+        st.members.forEach((m,i)=>{const h=segHit(q,m);if(h.d<bd){bd=h.d;best=i;}});
+        sel=best>=0?{type:'member',idx:best}:null;
+      }
+      syncInsp();render();
+      return;
+    }
+    if(tool==='node'){
+      edit(()=>{const n=ensureNode(snapToGeometry(q,g));sel={type:'node',id:n.id};});
+    }else if(tool==='member'){
+      edit(()=>{
+        const near=nodeNear(q,18);
+        const g2=pending!==null&&!near?axisLock(g,nodeById(pending)):g;
+        const n=near||ensureNode(snapToGeometry(q,g2));
+        if(pending===null){pending=n.id;}
+        else{if(n.id!==pending)addMember(pending,n.id);pending=null;}
+      });
+    }else if(tool==='pin'||tool==='roller'||tool==='fix'){
+      edit(()=>{
+        const n=nodeNear(q,20)||ensureNode(snapToGeometry(q,g));
+        if(n.sup&&n.sup.t===tool){n.sup=null;sel=null;}
+        else{
+          n.sup={t:tool,a:null};sel={type:'node',id:n.id};
+          if(st.kind==='truss'&&tool==='fix')st.members.forEach(m=>{if(m.a===n.id)m.ea='r';if(m.b===n.id)m.eb='r';});
+        }
+      });
+    }else if(tool==='hinge'){
+      const type='h';
+      edit(()=>{
+        const n=nodeNear(q,11);
+        if(n){
+          const ends=[];
+          st.members.forEach(m=>{if(m.a===n.id)ends.push([m,'ea']);if(m.b===n.id)ends.push([m,'eb']);});
+          if(!ends.length)return;
+          const all=ends.every(x=>x[0][x[1]]===type);
+          ends.forEach(x=>{x[0][x[1]]=all?'r':type;});
+          return;
+        }
+        let best=null,bd=14;
+        st.members.forEach(m=>{const h=segHit(q,m);if(h.d<bd){bd=h.d;best={m,t:h.t};}});
+        if(best){
+          const index=st.members.indexOf(best.m);
+          if(best.t>0.035&&best.t<0.965){
+            const n=splitAtMember(index,best.t);
+            if(n)st.members.forEach(m=>{if(m.a===n.id)m.ea=type;if(m.b===n.id)m.eb=type;});
+          }else{
+            const k=best.t<0.5?'ea':'eb';best.m[k]=best.m[k]===type?defEnd():type;
+          }
+        }
+      });
+    }else if(tool==='erase'){
+      edit(()=>{
+        const sl=sliderNear(q);if(sl){removeSlider(sl);sel=null;return;}
+        const n=nodeNear(q,14);
+        if(n){removeNode(n.id);return;}
+        let best=-1,bd=11;
+        st.members.forEach((m,i)=>{const h=segHit(q,m);if(h.d<bd){bd=h.d;best=i;}});
+        if(best>=0){dropSlidersForMember(st.members[best].uid);st.members.splice(best,1);sel=null;}
+      });
+    }
+  });
+  svg.addEventListener('pointermove',e=>{
+    if(panDrag){
+      const q=pt(e),dx=(q.x-panDrag.start.x)/panDrag.scale,dy=(q.y-panDrag.start.y)/panDrag.scale;
+      if(Math.abs(dx)+Math.abs(dy)>1e-7){
+        const v=panDrag.view;
+        st.view={minX:v.minX-dx,maxX:v.maxX-dx,minY:v.minY+dy,maxY:v.maxY+dy};
+        panDrag.moved=true;projection();render();
+      }
+      return;
+    }
+    if(!drag)return;
+    const g=snapG(pt(e)),n=nodeById(drag.id);
+    if(n&&(!eq(n.x,g.x)||!eq(n.y,g.y))&&!nodeAtGrid(g)){
+      if(moveNode(n,g.x,g.y)){drag.moved=true;refresh();}
+    }
+  });
+  const endDrag=()=>{
+    if(panDrag){if(panDrag.moved)pushHist(panDrag.before);panDrag=null;refresh();}
+    if(drag&&drag.moved)pushHist(drag.before);drag=null;
+  };
+  svg.addEventListener('pointerup',endDrag);
+  svg.addEventListener('pointercancel',endDrag);
+
+  /* ---------- drawing ---------- */
+  function hatch(y){let d='';for(let x=-16;x<=16;x+=8)d+='M'+x+' '+y+' l-6 8 ';return '<path d="'+d+'" class="sup hat"/>';}
+  function suppShape(t){
+    if(t==='pin')return '<path d="M0 0 L-13 21 L13 21 Z" class="sup f"/><path d="M-19 21 H19" class="sup"/>'+hatch(21);
+    if(t==='roller')return '<path d="M0 0 L-11 15 L11 15 Z" class="sup f"/><circle cx="-6" cy="19" r="3.6" class="sup f"/><circle cx="6" cy="19" r="3.6" class="sup f"/><path d="M-19 23 H19" class="sup"/>'+hatch(23);
+    return '<path d="M-20 0 H20" class="sup thick"/>'+hatch(2);
+  }
+  function suppAngle(n){
+    if(n.sup.a!=null)return n.sup.a;
+    let sx=0,sy=0;
+    st.members.forEach(m=>{
+      let o=null;
+      if(m.a===n.id)o=nodeById(m.b);else if(m.b===n.id)o=nodeById(m.a);
+      if(!o)return;
+      const vx=X(o.x)-X(n.x),vy=Y(o.y)-Y(n.y),l=Math.hypot(vx,vy)||1;
+      sx+=vx/l;sy+=vy/l;
+    });
+    if(n.sup.t==='roller')return sy>0.01?180:0;
+    const gx=-sx,gy=-sy;
+    if(Math.abs(gx)>Math.abs(gy)+1e-6)return gx<0?90:270;
+    return gy<-0.01?180:0;
+  }
+  function render(){
+    let s='';
+    const v=st.view,raw=(v.maxX-v.minX)/13,pow=Math.pow(10,Math.floor(Math.log10(Math.max(raw,.0001))));
+    const spacing=[1,2,5,10].map(n=>n*pow).find(n=>n>=raw)||pow*10;
+    for(let i=Math.ceil(v.minX/spacing)*spacing;i<=v.maxX+1e-10;i+=spacing){
+      s+='<line class="gl" x1="'+X(i)+'" y1="'+Y(v.minY)+'" x2="'+X(i)+'" y2="'+Y(v.maxY)+'"/>';
+      s+='<text class="tk" x="'+X(i)+'" y="478" text-anchor="middle">'+Number(i.toFixed(3))+'</text>';
+    }
+    for(let j=Math.ceil(v.minY/spacing)*spacing;j<=v.maxY+1e-10;j+=spacing){
+      s+='<line class="gl" x1="'+X(v.minX)+'" y1="'+Y(j)+'" x2="'+X(v.maxX)+'" y2="'+Y(j)+'"/>';
+      s+='<text class="tk" x="14" y="'+(Y(j)+4)+'">'+Number(j.toFixed(3))+'</text>';
+    }
+    s+='<text class="tk" x="686" y="492" text-anchor="end">m</text>';
+    if(sel&&sel.type==='member'&&st.members[sel.idx]){
+      const m=st.members[sel.idx],a=nodeById(m.a),b=nodeById(m.b);
+      s+='<line class="msel" x1="'+X(a.x)+'" y1="'+Y(a.y)+'" x2="'+X(b.x)+'" y2="'+Y(b.y)+'"/>';
+    }
+    if(tool==='iroller'&&rollerFirst!==null){
+      const first=memberByUid(rollerFirst);
+      if(first){const a=nodeById(first.a),b=nodeById(first.b);
+        s+='<line class="first-member" x1="'+X(a.x)+'" y1="'+Y(a.y)+'" x2="'+X(b.x)+'" y2="'+Y(b.y)+'"/>';
+      }
+    }
+    st.members.forEach((m,q)=>{
+      const a=nodeById(m.a),b=nodeById(m.b),mov=res&&res.movM.has(q);
+      s+='<line class="mem'+(mov?' mov':'')+(st.kind==='truss'?' tr':'')+'" x1="'+X(a.x)+'" y1="'+Y(a.y)+'" x2="'+X(b.x)+'" y2="'+Y(b.y)+'"/>';
+    });
+    // Internal hinge is drawn ONCE at its joint as a single circle placed
+    // between the connected members, instead of duplicated at each released end.
+    st.nodes.forEach(n=>{
+      const hasHinge=st.members.some(m=>(m.a===n.id&&m.ea==='h')||(m.b===n.id&&m.eb==='h'));
+      const hasInternalRoll=st.members.some(m=>(m.a===n.id&&m.ea==='i')||(m.b===n.id&&m.eb==='i'));
+      if(!hasHinge||hasInternalRoll)return;
+      s+='<circle class="hinge" cx="'+X(n.x)+'" cy="'+Y(n.y)+'" r="6.2"/>';
+    });
+    // Legacy end-release rollers use a plain circle at the joint.
+    // Explicit roller connections (selected as a member pair) are shown separately.
+    st.nodes.forEach(n=>{
+      const oldRoll=st.members.some(m=>(m.a===n.id&&m.ea==='i')||(m.b===n.id&&m.eb==='i'));
+      if(oldRoll)s+='<circle class="slider-ring" cx="'+X(n.x)+'" cy="'+Y(n.y)+'" r="8"/>';
+    });
+    for(const sl of st.sliders){
+      const c=sliderCenter(sl);if(!c)continue;
+      const cx=X(c.x),cy=Y(c.y),ax=X(c.ax),ay=Y(c.ay),bx=X(c.bx),by=Y(c.by);
+      if(Math.hypot(ax-bx,ay-by)>9){
+        s+='<line class="slider-guide" x1="'+ax+'" y1="'+ay+'" x2="'+cx+'" y2="'+cy+'"/>';
+        s+='<line class="slider-guide" x1="'+bx+'" y1="'+by+'" x2="'+cx+'" y2="'+cy+'"/>';
+      }
+      s+='<circle class="slider-halo" cx="'+cx+'" cy="'+cy+'" r="8.8"/>';
+      s+='<circle class="slider-ring" cx="'+cx+'" cy="'+cy+'" r="8.8"/>';
+      s+='<circle class="slider-hit" cx="'+cx+'" cy="'+cy+'" r="13"/>';
+    }
+    st.nodes.forEach(n=>{
+      if(n.sup)s+='<g transform="translate('+X(n.x)+' '+Y(n.y)+') rotate('+suppAngle(n)+')">'+suppShape(n.sup.t)+'</g>';
+    });
+    st.nodes.forEach((n,i)=>{
+      const trN=st.kind==='truss';
+      const internalRoll=st.members.some(m=>(m.a===n.id&&m.ea==='i')||(m.b===n.id&&m.eb==='i'));
+      const internalHinge=st.members.some(m=>(m.a===n.id&&m.ea==='h')||(m.b===n.id&&m.eb==='h'));
+      const sconnect=st.sliders.some(sl=>{
+        const a=memberByUid(sl.am),b=memberByUid(sl.bm);
+        return a&&b&&(a[sl.ae]===n.id||b[sl.be]===n.id);
+      });
+      const duplicate=st.nodes.some(o=>o.id<n.id&&Math.hypot(o.x-n.x,o.y-n.y)<1e-9);
+      if(!internalRoll&&!sconnect&&!(internalHinge&&!trN))s+='<circle class="'+(trN?'hinge':'nd')+'" cx="'+X(n.x)+'" cy="'+Y(n.y)+'" r="'+(trN?7:6.5)+'"/>';
+      if(!duplicate)s+='<text class="lbl" x="'+(X(n.x)+(internalRoll||sconnect?17:10))+'" y="'+(Y(n.y)-((internalRoll||internalHinge||sconnect)&&!trN?16:9))+'">'+lab(i)+'</text>';
+      s+='<circle class="node-touch-zone" cx="'+X(n.x)+'" cy="'+Y(n.y)+'" r="17"/>';
+      if(pending===n.id)s+='<circle class="pend" cx="'+X(n.x)+'" cy="'+Y(n.y)+'" r="13"/>';
+      if(sel&&sel.type==='node'&&sel.id===n.id)s+='<circle class="nsel" cx="'+X(n.x)+'" cy="'+Y(n.y)+'" r="14"/>';
+    });
+    s+='<g id="ghost"></g>';
+    svg.innerHTML=s;
+    drawGhost(Math.PI*225);
+  }
+  function drawGhost(t){
+    const g=document.getElementById('ghost');
+    if(!g)return;
+    if(!res||!res.modes.length){g.innerHTML='';return;}
+    const v=res.modes[Math.min(mi,res.modes.length-1)],ix=res.ix;
+    const amp=RM?0.7:Math.sin(t/450)*0.8;
+    let s='';
+    st.members.forEach((m,q)=>{
+      const a=nodeById(m.a),b=nodeById(m.b),dx=b.x-a.x,dy=b.y-a.y,th=v[ix.mT(q)];
+      const ax=a.x+amp*v[ix.mU(q)],ay=a.y+amp*v[ix.mV(q)];
+      const bx=b.x+amp*(v[ix.mU(q)]-th*dy),by=b.y+amp*(v[ix.mV(q)]+th*dx);
+      s+='<line class="gm" x1="'+X(ax)+'" y1="'+Y(ay)+'" x2="'+X(bx)+'" y2="'+Y(by)+'"/>';
+    });
+    res.nl.forEach((n,k)=>{
+      if(!res.movN.has(n.id))return;
+      s+='<circle class="gn" cx="'+X(n.x+amp*v[ix.nU(k)])+'" cy="'+Y(n.y+amp*v[ix.nV(k)])+'" r="5"/>';
+    });
+    g.innerHTML=s;
+  }
+  function tick(t){
+    if(res&&res.modes.length&&!RM)drawGhost(t);
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- result panel ---------- */
+  function setState(s,ar,en,cls,sub,badge){
+    $('cvCard').dataset.s=s;$('badge').dataset.s=s;$('verdict').dataset.s=s;
+    $('badgeTxt').textContent=badge;$('vAr').textContent=ar;$('vEn').textContent=en;
+    $('vClass').textContent=cls;$('vSub').textContent=sub;
+  }
+  const stat=(k,v)=>'<div><dt>'+k+'</dt><dd>'+v+'</dd></div>';
+  function showResult(){
+    const idle=st.nodes.filter(n=>!st.members.some(m=>m.a===n.id||m.b===n.id)).length;
+    res=analyze(st.nodes,st.members,{transverse:st.kind==='beam'&&st.tv,sliders:st.sliders});
+    if(res&&res.error){
+      setState('bad','خطأ في الرسم','Invalid geometry','',res.error,'راجع الإحداثيات');
+      $('stats').innerHTML='';$('formula').textContent='—';$('whyBox').hidden=true;$('checks').hidden=true;$('modeBox').hidden=true;
+      res=null;return;
+    }
+    if(!res){
+      setState('empty','ارسم منشأً','','','أضف عقدتين وعضواً بينهما ثم مسنداً، وسيظهر الحكم هنا.','ارسم منشأً');
+      $('stats').innerHTML='';$('formula').textContent='—';$('whyBox').hidden=true;$('checks').hidden=true;$('modeBox').hidden=true;
+      $('fLabel').textContent='معادلة العد';
+      return;
+    }
+    const truss=realTruss();
+    if(res.nullity===0){
+      if(res.DI===0)setState('ok','مستقر','Stable','محدد استاتيكياً · Determinate','ردود الفعل وقوى الأعضاء تُحسب بمعادلات الاتزان وحدها.','مستقر · محدد');
+      else setState('ok','مستقر','Stable','غير محدد استاتيكياً · Indeterminate بدرجة '+res.DI,'يلزم '+res.DI+' من معادلات التوافق الإضافية لحل القوى.','مستقر · غير محدد ('+res.DI+')');
+    }else{
+      setState('bad','غير مستقر','Unstable','له '+res.nullity+' '+(res.nullity>2?'درجات':'درجة')+' حرية','يتحرك بلا مقاومة، ولا تنفع فيه معادلات الاتزان.','غير مستقر');
+    }
+    let sh=stat('العقد (j)',res.N)+stat('الأعضاء (m)',res.M)+stat('ردود الفعل (r)',res.R);
+    if(!truss)sh+=st.sliders.length?stat('قيود الوصلات (c)',res.con):stat('معادلات الشرط (ec)',res.C);
+    if(res.nullity===0){
+      sh+=stat('درجة عدم التحديد',res.DI);
+      if(truss)sh+=stat('خارجي r−3',res.R-3)+stat('داخلي',res.M-(2*res.N-3));
+    }else sh+=stat('درجات الحرية',res.nullity);
+    if(idle)sh+=stat('عقد مهملة',idle);
+    $('stats').innerHTML=sh;
+    if(truss){
+      $('fLabel').textContent='معيار الترس: m + r − 2j';
+      $('formula').textContent=res.M+' + '+res.R+' − 2×'+res.N+' = '+(res.M+res.R-2*res.N);
+    }else if(st.sliders.length){
+      $('fLabel').textContent=res.tv?'تحليل عرضي مختلط: r + c − 2m':'المنشأ المختلط: r + c − 3m (عدد قيود الربط c)';
+      $('formula').textContent=res.R+' + '+res.con+' − '+(res.tv?'2':'3')+'×'+res.M+' = '+res.DIf;
+    }else if(res.tv){
+      $('fLabel').textContent='تحليل عرضي فقط: 2m + r − 2j − ec';
+      $('formula').textContent='2×'+res.M+' + '+res.R+' − 2×'+res.N+' − '+res.C+' = '+res.DIf;
+    }else{
+      $('fLabel').textContent='معيار Kassimali: 3m + r − 3j − ec';
+      $('formula').textContent='3×'+res.M+' + '+res.R+' − 3×'+res.N+' − '+res.C+' = '+res.DIf;
+    }
+    const checks=[];
+    if(st.sliders.length)checks.push('وصلات الرولر المُنشأة باختيار عضوين تُنمذج كقيد حركي واحد (من دون مقاومة للانزلاق أو العزم). اختر الضلع الأول لتحديد اتجاه الانزلاق.');
+    if(st.sliders.some(x=>x.clone))checks.push('عند الرولر توجد نهايتان متطابقتان موقعياً لكنهما عقدتان منفصلتان حسابياً؛ لذلك قد يزيد عدد العقد j على عدد النقاط المرئية.');
+    if(st.kind==='truss'&&!truss)checks.push('وصلات غير مفصلية في وضع Truss: يُحل كمنشأ بإطارات صلبة/مفصلية مختلطة، وليس كترس محوري مثالي.');
+    if(res.externalRank<3&&!res.tv){
+      const pattern=res.externalPattern==='parallel'?'خطوط ردود الأفعال الخارجية متوازية.':res.externalPattern==='concurrent'?'خطوط ردود الأفعال الخارجية متلاقية عند نقطة (أو لا تولّد عزماً مستقلاً).':'عدد ردود الأفعال المستقلة أقل من المطلوب.';
+      checks.push(pattern+' رتبة توازن المساند '+res.externalRank+' من 3.');
+    }
+    for(const w of res.warnings)if(!checks.includes(w))checks.push(w);
+    // An intersection without a common node is not a structural joint.
+    function crossing(m1,m2){
+      const A=nodeById(m1.a),B=nodeById(m1.b),C=nodeById(m2.a),D=nodeById(m2.b);
+      const dx=B.x-A.x,dy=B.y-A.y,ex=D.x-C.x,ey=D.y-C.y,det=dx*ey-dy*ex;
+      if(Math.abs(det)<1e-9)return false;
+      const t=((C.x-A.x)*ey-(C.y-A.y)*ex)/det;
+      const u=((C.x-A.x)*dy-(C.y-A.y)*dx)/det;
+      return t>.00001&&t<.99999&&u>.00001&&u<.99999;
+    }
+    let crossings=0;
+    for(let i=0;i<st.members.length;i++)for(let j=i+1;j<st.members.length;j++){
+      if(crossing(st.members[i],st.members[j]))crossings++;
+    }
+    if(crossings)checks.push('يوجد '+crossings+' تقاطع بين أعضاء من دون عقدة موصولة. التقاطع المرئي لا يُنشئ وصلة تلقائياً.');
+    $('checks').hidden=!checks.length;
+    $('checks').innerHTML=checks.map(x=>'<p>⚠ '+x+'</p>').join('');
+    const why=[];
+    if(res.nullity>0){
+      if(res.DIf<0)why.push('القيود ناقصة بمقدار '+(-res.DIf)+' (المعادلة أعلاه سالبة).');
+      else why.push('عدد القيود كافٍ حسابياً لكن توزيعها خاطئ: ردود فعل متوازية أو متقاطعة في نقطة واحدة، أو مفاصل ورولرات تقسم المنشأ إلى أجزاء تتحرك.');
+      if(res.externalRank<3&&!res.tv)why.push('القيود الخارجية غير كافية لتثبيت جسم صلب: قد تكون ردود الأفعال متوازية أو خطوط تأثيرها متلاقية.');
+      if(res.DI>0)why.push('جزء من المنشأ فيه قيود زائدة ('+res.DI+') بينما جزء آخر يتحرك.');
+      if(res.comps>1)why.push('المنشأ مكوّن من '+res.comps+' أجزاء غير متصلة.');
+      why.push('الأعضاء المتحركة مظللة في الرسم: '+res.movM.size+' من '+res.M+'.');
+    }
+    $('why').innerHTML=why.map(x=>'<li>'+x+'</li>').join('');
+    $('whyBox').hidden=!why.length;
+    if(res.modes.length>1){
+      mi=Math.min(mi,res.modes.length-1);
+      $('modeBox').hidden=false;
+      $('modeTxt').textContent='شكل الحركة '+(mi+1)+' من '+res.modes.length;
+    }else{mi=0;$('modeBox').hidden=true;}
+  }
+
+  /* ---------- inspector ---------- */
+  function mkSeg(box,opts,active,onPick){
+    box.innerHTML='';
+    opts.forEach(o=>{
+      const b=document.createElement('button');
+      b.type='button';b.textContent=o.t;b.setAttribute('aria-pressed',String(o.v===active));
+      b.addEventListener('click',()=>onPick(o.v));
+      box.appendChild(b);
+    });
+  }
+  function syncInsp(){
+    const box=$('insp');
+    if(sel&&sel.type==='member'&&!st.members[sel.idx])sel=null;
+    if(sel&&sel.type==='node'&&!nodeById(sel.id))sel=null;
+    if(sel&&sel.type==='slider'&&!st.sliders.some(x=>x.id===sel.id))sel=null;
+    if(!sel){box.hidden=true;return;}
+    if(sel.type==='slider'){box.hidden=false;$('inspNode').hidden=true;$('inspMem').hidden=true;$('inspT').textContent='رولر داخلي بين عضوين — اضغط حذف لإزالة الوصلة';return;}
+    box.hidden=false;
+    if(sel.type==='node'){
+      const n=nodeById(sel.id);
+      $('inspNode').hidden=false;$('inspMem').hidden=true;
+      $('inspT').textContent='العقدة '+lab(nodeIndex(n));
+      const opts=[{v:'none',t:'بدون'},{v:'pin',t:'مثبت'},{v:'roller',t:'متحرك'}];
+      opts.push({v:'fix',t:'وثيق'});
+      mkSeg($('segSup'),opts,n.sup?n.sup.t:'none',v=>{
+        edit(()=>{
+          if(v==='none')n.sup=null;else if(!n.sup||n.sup.t!==v)n.sup={t:v,a:null};
+          if(v==='fix'&&st.kind==='truss')st.members.forEach(m=>{if(m.a===n.id)m.ea='r';if(m.b===n.id)m.eb='r';});
+        });
+      });
+      $('angRow').hidden=!n.sup;$('angNote').hidden=!n.sup;
+      const ai=$('angIn');
+      ai.value=n.sup&&n.sup.a!=null?String(Math.round(n.sup.a*100)/100):'';
+      if(n.sup){
+        $('angNote').textContent=n.sup.t==='roller'
+          ?'0° رد الفعل عمودي والمسند يتحرك أفقياً. 90° رد الفعل أفقي والمسند يتحرك رأسياً. أي زاوية أخرى تعطي مسنداً مائلاً.'
+          :'زاوية المسند للرسم فقط (اتجاه الأرضية)، ولا تغيّر الحكم لأن المسند المثبت والوثيق يمنعان الحركة بكل الاتجاهات.';
+      }
+      $('xIn').value=String(n.x);$('yIn').value=String(n.y);
+      $('yIn').disabled=false;
+    }else{
+      const m=st.members[sel.idx],a=nodeById(m.a),b=nodeById(m.b);
+      $('inspNode').hidden=true;$('inspMem').hidden=false;
+      const len=Math.hypot(b.x-a.x,b.y-a.y);
+      $('inspT').textContent='العضو '+lab(nodeIndex(a))+lab(nodeIndex(b))+' (طوله '+(Math.round(len*100)/100)+' م)';
+      const tr=st.kind==='truss';
+      const opts=[{v:'r',t:'ملتحم'},{v:'h',t:'مفصل'},{v:'i',t:'رولر داخلي'}];
+      $('endALbl').textContent='الطرف عند '+lab(nodeIndex(a));
+      $('endBLbl').textContent='الطرف عند '+lab(nodeIndex(b));
+      mkSeg($('segEa'),opts,m.ea,v=>edit(()=>{m.ea=v;}));
+      mkSeg($('segEb'),opts,m.eb,v=>edit(()=>{m.eb=v;}));
+      $('maX').value=a.x;$('maY').value=a.y;$('mbX').value=b.x;$('mbY').value=b.y;
+      $('memNote').textContent=tr?'الترس الطبيعي يختار مفصل لكل طرف. الملتحم والرولر الداخلي يحوّلان النموذج إلى اتصال مختلط (لا تنطبق معادلة الترس المعتادة).':'الرولر الداخلي يحرر العزم والقوة المحورية ويمرر القوة العمودية فقط. ويُفضَّل وضعه عند نقطة مشتركة بين عضوين.';
+    }
+  }
+  $('inspDel').addEventListener('click',deleteSel);
+  function setAngle(val){
+    if(!sel||sel.type!=='node')return;
+    const n=nodeById(sel.id);if(!n||!n.sup)return;
+    edit(()=>{
+      if(val===null)n.sup.a=null;
+      else{let a=((val%360)+360)%360;if(a>180)a-=360;n.sup.a=a;}
+    });
+  }
+  $('angIn').addEventListener('change',e=>{
+    const v=e.target.value.trim();
+    if(v===''||isNaN(parseFloat(v)))setAngle(null);else setAngle(parseFloat(v));
+  });
+  $('angRow').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    if(b.dataset.ang==='auto'){setAngle(null);return;}
+    if(b.dataset.ang!==undefined){setAngle(parseFloat(b.dataset.ang));return;}
+    const n=sel&&sel.type==='node'?nodeById(sel.id):null;
+    if(n&&n.sup)setAngle((n.sup.a!=null?n.sup.a:suppAngle(n))+parseFloat(b.dataset.d));
+  }));
+  function numberInput(id){const t=$(id).value.trim();if(t==='')return NaN;return Number(t);}
+  function validPoint(x,y){return Number.isFinite(x)&&Number.isFinite(y)&&Math.abs(x)<=1e7&&Math.abs(y)<=1e7;}
+  function setPos(){
+    if(!sel||sel.type!=='node')return;
+    const n=nodeById(sel.id);if(!n)return;
+    const x=numberInput('xIn'),y=numberInput('yIn');
+    if(!validPoint(x,y)){alert('اكتب إحداثيات X وY صحيحة.');syncInsp();return;}
+    if(st.nodes.some(o=>o!==n&&Math.hypot(o.x-x,o.y-y)<1e-8)){
+      alert('يوجد عقدة أخرى بهذه الإحداثيات.');syncInsp();return;
+    }
+    edit(()=>{moveNode(n,x,y);});
+  }
+  $('applyNodePos').addEventListener('click',setPos);
+  $('xIn').addEventListener('change',setPos);
+  $('yIn').addEventListener('change',setPos);
+  function applyMemberCoords(mode){
+    if(!sel||sel.type!=='member')return;
+    const m=st.members[sel.idx],a=nodeById(m.a),b=nodeById(m.b);
+    let x1=numberInput('maX'),y1=numberInput('maY'),x2=numberInput('mbX'),y2=numberInput('mbY');
+    const lengthBefore=Math.hypot(x2-x1,y2-y1);
+    if(mode==='horizontal'){const direction=Math.sign(x2-x1)||1;x2=x1+direction*lengthBefore;y2=y1;}
+    if(mode==='vertical'){const direction=Math.sign(y2-y1)||1;y2=y1+direction*lengthBefore;x2=x1;}
+    if(!validPoint(x1,y1)||!validPoint(x2,y2)||Math.hypot(x2-x1,y2-y1)<1e-8){alert('الإحداثيات غير صالحة أو طول العضو صفر.');return;}
+    if(st.kind==='beam'&&mode==='vertical'){alert('الـ Beam في هذا الوضع يبقى أفقياً. بدّل إلى Frame لرسم عضو عمودي.');return;}
+    const collides=(n,x,y)=>st.nodes.some(o=>o!==n&&o!==a&&o!==b&&Math.hypot(o.x-x,o.y-y)<1e-8);
+    if(collides(a,x1,y1)||collides(b,x2,y2)){alert('لا يمكن دمج عقدتين مختلفتين بنفس المكان.');return;}
+    edit(()=>{
+      if(st.kind==='beam'){
+        const dy=y1-st.beamY;
+        st.nodes.forEach(n=>{n.y+=dy;});st.beamY=y1;y2=y1;
+      }
+      a.x=x1;a.y=y1;b.x=x2;b.y=y2;
+      includePoint(x1,y1);includePoint(x2,y2);
+    });
+  }
+  $('memApply').addEventListener('click',()=>applyMemberCoords('all'));
+  $('memHorizontal').addEventListener('click',()=>applyMemberCoords('horizontal'));
+  $('memVertical').addEventListener('click',()=>applyMemberCoords('vertical'));
+
+  function exactCoords(){
+    let ax=numberInput('cax'),ay=numberInput('cay'),bx=numberInput('cbx'),by=numberInput('cby');
+    if(st.kind==='beam')by=ay;
+    if(!validPoint(ax,ay)||!validPoint(bx,by))return null;
+    return {ax,ay,bx,by};
+  }
+  $('drawExact').addEventListener('click',()=>{
+    const p=exactCoords();
+    if(!p){$('coordMessage').textContent='أدخل أرقام X وY صحيحة.';return;}
+    if(Math.hypot(p.bx-p.ax,p.by-p.ay)<1e-8){$('coordMessage').textContent='لا يمكن رسم عضو طوله صفر.';return;}
+    edit(()=>{
+      if(st.kind==='beam'&&Math.abs(st.beamY-p.ay)>1e-9){
+        const dy=p.ay-st.beamY;st.nodes.forEach(n=>n.y+=dy);st.beamY=p.ay;
+      }
+      const a=ensureNode({x:p.ax,y:p.ay}),b=ensureNode({x:p.bx,y:p.by});
+      addMember(a.id,b.id);sel={type:'member',idx:st.members.findIndex(m=>(m.a===a.id&&m.b===b.id)||(m.a===b.id&&m.b===a.id))};
+      pending=null;
+    });
+    $('coordMessage').textContent='تم تنفيذ أمر الرسم.';
+  });
+  $('addExactNode').addEventListener('click',()=>{
+    const p=exactCoords();if(!p){$('coordMessage').textContent='الإحداثيات غير صالحة.';return;}
+    edit(()=>{
+      if(st.kind==='beam'&&Math.abs(p.ay-st.beamY)>1e-9){const dy=p.ay-st.beamY;st.nodes.forEach(n=>n.y+=dy);st.beamY=p.ay;}
+      const n=ensureNode({x:p.ax,y:p.ay});sel={type:'node',id:n.id};
+    });
+    $('coordMessage').textContent='تم اختيار/إضافة نقطة البداية.';
+  });
+  $('exactHorizontal').addEventListener('click',()=>{$('cby').value=$('cay').value;});
+  $('exactVertical').addEventListener('click',()=>{$('cbx').value=$('cax').value;});
+
+  /* ---------- UI wiring ---------- */
+  function renderTools(){
+    const tb=$('tools');tb.innerHTML='';
+    const code=st.kind[0];
+    const groups=[
+      {name:'رسم وتحديد',ids:['select','node','member','pan']},
+      {name:'المساند',ids:['pin','roller','fix']},
+      {name:'الوصلات',ids:['hinge','iroller']},
+      {name:'تعديل',ids:['erase']}
+    ];
+    groups.forEach(g=>{
+      const visible=TOOLS.filter(t=>g.ids.includes(t.id)&&t.k.includes(code));
+      if(!visible.length)return;
+      const group=document.createElement('div');group.className='tool-group';
+      const caption=document.createElement('span');caption.className='tool-group-title';caption.textContent=g.name;
+      group.appendChild(caption);
+      const buttons=document.createElement('div');buttons.className='tool-group-buttons';
+      visible.forEach(t=>{
+        const b=document.createElement('button');
+        b.type='button';b.className='tbtn';b.dataset.tool=t.id;
+        b.title=t.h;b.setAttribute('aria-label',t.t);
+        b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+ICONS[t.id]+'</svg><span>'+t.t+'</span>';
+        b.addEventListener('click',()=>{tool=t.id;pending=null;rollerFirst=null;syncTools();render();});
+        buttons.appendChild(b);
+      });
+      group.appendChild(buttons);tb.appendChild(group);
+    });
+    syncTools();
+  }
+  $('quickSlider').addEventListener('click',()=>{tool='iroller';pending=null;rollerFirst=null;syncTools();render();});
+  function syncTools(){
+    const code=st.kind[0];
+    let cur=TOOLS.find(t=>t.id===tool);
+    if(!cur||cur.k.indexOf(code)<0){tool='select';cur=TOOLS[0];}
+    $('tools').querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===tool)));
+    $('hint').textContent=cur.h;
+    svg.classList.toggle('is-panning',tool==='pan');
+    $('actionTip').textContent=tool==='iroller'?'اضغط على الضلع الأول ثم الضلع الثاني، حتى تظهر دائرة الرولر بين نهايتيهما.':
+      tool==='pan'?'اسحب الرسم بإصبع واحد إلى فوق أو جوه أو يمين ويسار. خارج وضع التحريك، السحب بالفراغ يمرّر الصفحة.':
+      'لتحريك الصفحة اسحب من فراغ الرسم. لتحريك المنشأ نفسه اختر «تحريك اللوحة».';
+  }
+  function syncKindUI(){
+    mkSeg($('kindSeg'),KINDS.map(k=>({v:k.id,t:k.t})),st.kind,switchKind);
+    $('kindNote').textContent=KINDS.find(k=>k.id===st.kind).n;
+    mkSeg($('stepSeg'),[{v:0,t:'حر (بدون تقييد)'},{v:1,t:'1 م'},{v:0.5,t:'0.5 م'}],st.step,v=>{st.step=v;syncKindUI();});
+    $('tvWrap').hidden=st.kind!=='beam';
+    $('tvChk').checked=!!st.tv;
+    $('orthoChk').checked=!!st.ortho;
+    const pr=$('presets');pr.innerHTML='<span>أمثلة جاهزة:</span>';
+    PRESETS.filter(p=>p.k===st.kind).forEach(p=>{
+      const b=document.createElement('button');
+      b.type='button';b.className='chip';b.textContent=p.t;
+      b.addEventListener('click',()=>{loadPreset(p);const d=pr.closest('details');if(d)d.open=false;});
+      pr.appendChild(b);
+    });
+    renderTools();
+  }
+  $('tvChk').addEventListener('change',e=>{edit(()=>{st.tv=e.target.checked;});});
+  $('orthoChk').addEventListener('change',e=>{edit(()=>{st.ortho=e.target.checked;});});
+  $('fit').addEventListener('click',()=>edit(fitView));
+  function panStep(dx,dy){edit(()=>{const v=st.view;st.view={minX:v.minX+dx,maxX:v.maxX+dx,minY:v.minY+dy,maxY:v.maxY+dy};});}
+  $('panUp').addEventListener('click',()=>panStep(0,-(st.view.maxY-st.view.minY)*.14));
+  $('panDown').addEventListener('click',()=>panStep(0,(st.view.maxY-st.view.minY)*.14));
+  $('panLeft').addEventListener('click',()=>panStep(-(st.view.maxX-st.view.minX)*.14,0));
+  $('panRight').addEventListener('click',()=>panStep((st.view.maxX-st.view.minX)*.14,0));
+  $('zoomIn').addEventListener('click',()=>zoomView(.78));
+  $('zoomOut').addEventListener('click',()=>zoomView(1.28));
+  $('undo').addEventListener('click',undo);
+  $('redo').addEventListener('click',redo);
+  $('clear').addEventListener('click',()=>{edit(()=>{st.nodes=[];st.members=[];st.sliders=[];st.nid=1;st.mid=1;st.sid=1;pending=null;rollerFirst=null;sel=null;});});
+  $('exportModel').addEventListener('click',()=>{
+    const json=JSON.stringify({format:'Structural Stability Lab 4',model:st},null,2);
+    const link=document.createElement('a');
+    const url=URL.createObjectURL(new Blob([json],{type:'application/json;charset=utf-8'}));
+    link.href=url;link.download='structural-design.json';document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1200);
+  });
+  function validatedModel(o){
+    if(o&&o.format==='Structural Stability Lab 4')o=o.model;
+    if(!o||!['frame','beam','truss'].includes(o.kind)||!Array.isArray(o.nodes)||!Array.isArray(o.members)||o.nodes.length>300||o.members.length>600)throw Error('بنية ملف الرسم غير صحيحة.');
+    const ids=new Set(),nn=[];
+    for(const n of o.nodes){
+      if(!Number.isInteger(n.id)||ids.has(n.id)||!Number.isFinite(n.x)||!Number.isFinite(n.y)||Math.abs(n.x)>1e7||Math.abs(n.y)>1e7)throw Error('بيانات العقد غير صالحة.');
+      ids.add(n.id);const sp=n.sup;
+      if(sp&&(!['pin','roller','fix'].includes(sp.t)||(sp.a!=null&&!Number.isFinite(sp.a))))throw Error('نوع مسند غير صالح.');
+      nn.push({id:n.id,x:n.x,y:n.y,sup:sp?{t:sp.t,a:sp.a==null?null:sp.a}:null});
+    }
+    const by=new Map(nn.map(n=>[n.id,n])),mm=[],uids=new Set();let nextUid=1;
+    for(const m of o.members){
+      if(!ids.has(m.a)||!ids.has(m.b)||!['r','h','i'].includes(m.ea)||!['r','h','i'].includes(m.eb))throw Error('بيانات عضو غير صالحة.');
+      if(Math.hypot(by.get(m.a).x-by.get(m.b).x,by.get(m.a).y-by.get(m.b).y)<1e-8)throw Error('يوجد عضو بطول صفري.');
+      let uid=m.uid;if(!Number.isInteger(uid)||uid<1||uids.has(uid))uid=nextUid;while(uids.has(uid))uid++;uids.add(uid);nextUid=Math.max(nextUid,uid+1);
+      mm.push({uid,a:m.a,b:m.b,ea:m.ea,eb:m.eb});
+    }
+    const sm=[],sliderIds=new Set();let nextSid=1;
+    if(o.sliders!==undefined){
+      if(!Array.isArray(o.sliders)||o.sliders.length>600)throw Error('قائمة وصلات الرولر غير صالحة.');
+      for(const z of o.sliders){
+        if(!uids.has(z.am)||!uids.has(z.bm)||z.am===z.bm||!['a','b'].includes(z.ae)||!['a','b'].includes(z.be))throw Error('وصلة رولر تشير إلى عضو غير صحيح.');
+        const am=mm.find(m=>m.uid===z.am),bm=mm.find(m=>m.uid===z.bm);
+        const original=z.original,clone=z.clone;
+        if(clone!=null&&(!ids.has(clone)||!ids.has(original)||bm[z.be]!==clone))throw Error('وصلة الرولر غير متوافقة مع العقد.');
+        let sid=Number.isInteger(z.id)&&z.id>0&&!sliderIds.has(z.id)?z.id:nextSid;
+        while(sliderIds.has(sid))sid++;sliderIds.add(sid);nextSid=Math.max(nextSid,sid+1);
+        sm.push({id:sid,am:z.am,ae:z.ae,bm:z.bm,be:z.be,original:clone==null?null:original,clone:clone==null?null:clone});
+      }
+    }
+    const output={kind:o.kind,nodes:nn,members:mm,sliders:sm,mid:nextUid,sid:nextSid,nid:Math.max(0,...nn.map(n=>n.id))+1,step:[0,.5,1].includes(o.step)?o.step:0,tv:!!o.tv,ortho:o.ortho!==false,beamY:Number.isFinite(o.beamY)?o.beamY:BEAM_DEFAULT_Y};
+    if(o.view&&[o.view.minX,o.view.maxX,o.view.minY,o.view.maxY].every(Number.isFinite)&&o.view.maxX>o.view.minX&&o.view.maxY>o.view.minY){output.view=o.view;}
+    return output;
+  }
+  $('importModel').addEventListener('click',()=>$('importFile').click());
+  $('importFile').addEventListener('change',async e=>{
+    const file=e.target.files&&e.target.files[0];if(!file)return;
+    try{
+      if(file.size>2000000)throw Error('الملف أكبر من الحد المسموح (2 MB).');
+      const value=validatedModel(JSON.parse(await file.text()));
+      edit(()=>{st=value;ensureDefaults();fitView();sel=null;pending=null;syncKindUI();});
+    }catch(err){alert('تعذر فتح التصميم: '+err.message);}
+    e.target.value='';
+  });
+  $('modeNext').addEventListener('click',()=>{if(res&&res.modes.length){mi=(mi+1)%res.modes.length;showResult();render();}});
+  function undo(){if(hist.length){fut.push(snapshot());restore(hist.pop());refresh();}}
+  function redo(){if(fut.length){hist.push(snapshot());restore(fut.pop());refresh();}}
+  document.addEventListener('keydown',e=>{
+    const t=e.target&&e.target.tagName;
+    if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;
+    const k=e.key.toLowerCase();
+    if((e.ctrlKey||e.metaKey)&&k==='z'){e.preventDefault();e.shiftKey?redo():undo();}
+    else if((e.ctrlKey||e.metaKey)&&k==='y'){e.preventDefault();redo();}
+    else if(k==='delete'||k==='backspace'){if(sel){e.preventDefault();deleteSel();}}
+    else if(k==='escape'){sel=null;pending=null;rollerFirst=null;syncInsp();render();}
+  });
+
+  function save(){try{localStorage.setItem('frame2d-v2',snapshot());}catch(_){}}
+  function refresh(){
+    projection();
+    $('undo').disabled=!hist.length;$('redo').disabled=!fut.length;
+    showResult();render();syncInsp();save();
+  }
+
+  let loaded=false;
+  try{
+    const s=localStorage.getItem('frame2d-v2');
+    if(s){
+      const o=JSON.parse(s);
+      if(o&&Array.isArray(o.nodes)&&o.nodes.length){st=validatedModel(o);loaded=true;}
+    }
+  }catch(_){}
+  ensureDefaults();projection();syncKindUI();
+  if(loaded)refresh();else loadPreset(PRESETS[0]);
+  requestAnimationFrame(tick);
+})();
+</script>
+
+</body></html>

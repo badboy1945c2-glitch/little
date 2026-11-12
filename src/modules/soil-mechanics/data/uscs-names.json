@@ -1,0 +1,87 @@
+{
+  "coarseNames": {
+    "GW": [
+      "Well-graded gravel",
+      "Well-graded gravel with sand"
+    ],
+    "GP": [
+      "Poorly graded gravel",
+      "Poorly graded gravel with sand"
+    ],
+    "GW-GM": [
+      "Well-graded gravel with silt",
+      "Well-graded gravel with silt and sand"
+    ],
+    "GW-GC": [
+      "Well-graded gravel with clay (or silty clay)",
+      "Well-graded gravel with clay and sand (or silty clay and sand)"
+    ],
+    "GP-GM": [
+      "Poorly graded gravel with silt",
+      "Poorly graded gravel with silt and sand"
+    ],
+    "GP-GC": [
+      "Poorly graded gravel with clay (or silty clay)",
+      "Poorly graded gravel with clay and sand (or silty clay and sand)"
+    ],
+    "GM": [
+      "Silty gravel",
+      "Silty gravel with sand"
+    ],
+    "GC": [
+      "Clayey gravel",
+      "Clayey gravel with sand"
+    ],
+    "GC-GM": [
+      "Silty clayey gravel",
+      "Silty clayey gravel with sand"
+    ],
+    "SW": [
+      "Well-graded sand",
+      "Well-graded sand with gravel"
+    ],
+    "SP": [
+      "Poorly graded sand",
+      "Poorly graded sand with gravel"
+    ],
+    "SW-SM": [
+      "Well-graded sand with silt",
+      "Well-graded sand with silt and gravel"
+    ],
+    "SW-SC": [
+      "Well-graded sand with clay (or silty clay)",
+      "Well-graded sand with clay and gravel (or silty clay and gravel)"
+    ],
+    "SP-SM": [
+      "Poorly graded sand with silt",
+      "Poorly graded sand with silt and gravel"
+    ],
+    "SP-SC": [
+      "Poorly graded sand with clay (or silty clay)",
+      "Poorly graded sand with clay and gravel (or silty clay and gravel)"
+    ],
+    "SM": [
+      "Silty sand",
+      "Silty sand with gravel"
+    ],
+    "SC": [
+      "Clayey sand",
+      "Clayey sand with gravel"
+    ],
+    "SC-SM": [
+      "Silty clayey sand",
+      "Silty clayey sand with gravel"
+    ]
+  },
+  "fineBaseNames": {
+    "CL": "Lean clay",
+    "CL-ML": "Silty clay",
+    "ML": "Silt",
+    "CH": "Fat clay",
+    "MH": "Elastic silt",
+    "OL-clay": "Organic clay",
+    "OL-silt": "Organic silt",
+    "OH-clay": "Organic clay",
+    "OH-silt": "Organic silt"
+  }
+}

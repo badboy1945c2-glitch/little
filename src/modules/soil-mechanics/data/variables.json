@@ -1,0 +1,170 @@
+[
+  {
+    "key": "W",
+    "symbol": "W",
+    "ar": "الوزن الكلي للتربة",
+    "en": "Total weight",
+    "unit": "kN أو N",
+    "kind": "قياس"
+  },
+  {
+    "key": "Ws",
+    "symbol": "Ws",
+    "ar": "وزن الحبيبات الصلبة (الوزن الجاف Wd)",
+    "en": "Weight of solids",
+    "unit": "kN أو N",
+    "kind": "قياس"
+  },
+  {
+    "key": "Ww",
+    "symbol": "Ww",
+    "ar": "وزن الماء",
+    "en": "Weight of water",
+    "unit": "kN أو N",
+    "kind": "قياس"
+  },
+  {
+    "key": "V",
+    "symbol": "V",
+    "ar": "الحجم الكلي",
+    "en": "Total volume",
+    "unit": "m³ أو cm³",
+    "kind": "قياس"
+  },
+  {
+    "key": "Vs",
+    "symbol": "Vs",
+    "ar": "حجم الحبيبات الصلبة",
+    "en": "Volume of solids",
+    "unit": "m³ أو cm³",
+    "kind": "قياس"
+  },
+  {
+    "key": "Vv",
+    "symbol": "Vv",
+    "ar": "حجم الفراغات",
+    "en": "Volume of voids",
+    "unit": "m³ أو cm³",
+    "kind": "قياس"
+  },
+  {
+    "key": "Vw",
+    "symbol": "Vw",
+    "ar": "حجم الماء",
+    "en": "Volume of water",
+    "unit": "m³ أو cm³",
+    "kind": "قياس"
+  },
+  {
+    "key": "Va",
+    "symbol": "Va",
+    "ar": "حجم الهواء",
+    "en": "Volume of air",
+    "unit": "m³ أو cm³",
+    "kind": "قياس"
+  },
+  {
+    "key": "n",
+    "symbol": "n",
+    "ar": "المسامية",
+    "en": "Porosity",
+    "unit": "% (كسر داخلياً)",
+    "kind": "نسبة"
+  },
+  {
+    "key": "e",
+    "symbol": "e",
+    "ar": "نسبة الفراغات",
+    "en": "Void ratio",
+    "unit": "كسر عشري",
+    "kind": "نسبة"
+  },
+  {
+    "key": "S",
+    "symbol": "S",
+    "ar": "درجة التشبع",
+    "en": "Degree of saturation",
+    "unit": "%",
+    "kind": "نسبة"
+  },
+  {
+    "key": "na",
+    "symbol": "na",
+    "ar": "نسبة الفراغات الهوائية",
+    "en": "Percent air voids",
+    "unit": "%",
+    "kind": "نسبة"
+  },
+  {
+    "key": "ac",
+    "symbol": "ac",
+    "ar": "محتوى الهواء",
+    "en": "Air content",
+    "unit": "%",
+    "kind": "نسبة"
+  },
+  {
+    "key": "w",
+    "symbol": "w",
+    "ar": "المحتوى المائي (الرطوبة)",
+    "en": "Water (moisture) content",
+    "unit": "%",
+    "kind": "نسبة"
+  },
+  {
+    "key": "gamma",
+    "symbol": "γ",
+    "ar": "وزن الوحدة الكلي (الرطب)",
+    "en": "Bulk (moist) unit weight",
+    "unit": "kN/m³",
+    "kind": "وزن وحدة"
+  },
+  {
+    "key": "gamma_s",
+    "symbol": "γs",
+    "ar": "وزن وحدة الحبيبات",
+    "en": "Unit weight of solids",
+    "unit": "kN/m³",
+    "kind": "وزن وحدة"
+  },
+  {
+    "key": "gamma_sat",
+    "symbol": "γsat",
+    "ar": "وزن الوحدة المشبع",
+    "en": "Saturated unit weight",
+    "unit": "kN/m³",
+    "kind": "وزن وحدة"
+  },
+  {
+    "key": "gamma_sub",
+    "symbol": "γ′",
+    "ar": "وزن الوحدة المغمور (الطافي)",
+    "en": "Submerged unit weight",
+    "unit": "kN/m³",
+    "kind": "وزن وحدة"
+  },
+  {
+    "key": "gamma_d",
+    "symbol": "γd",
+    "ar": "وزن الوحدة الجاف",
+    "en": "Dry unit weight",
+    "unit": "kN/m³",
+    "kind": "وزن وحدة"
+  },
+  {
+    "key": "G",
+    "symbol": "G (Gs)",
+    "ar": "الوزن النوعي للحبيبات",
+    "en": "Specific gravity of solids",
+    "unit": "بدون وحدة",
+    "kind": "نسبة"
+  },
+  {
+    "key": "Gm",
+    "symbol": "Gm",
+    "ar": "الوزن النوعي الكلي للتربة",
+    "en": "Bulk specific gravity",
+    "unit": "بدون وحدة",
+    "kind": "نسبة"
+  }
+]

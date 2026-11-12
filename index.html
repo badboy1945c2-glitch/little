@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <title>Little Eng - المهندس الصغير</title>
+
+    <!-- خطوط التطبيق -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- صفحة الترحيب -->
+    <div id="page-welcome" class="page active">
+        <div class="welcome-content">
+            <div class="logo-placeholder">
+                <svg width="100" height="100" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4">
+                    <path d="M10 50 L50 20 L90 50 L50 80 Z" fill="#2563eb" stroke="none" opacity="0.15"/>
+                    <path d="M50 20 L10 50 L50 80 L90 50 Z" stroke="#2563eb" stroke-linejoin="round"/>
+                    <path d="M30 62 L30 85 M70 62 L70 85 M50 80 L50 100" stroke="#0f172a" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h1>Little Eng</h1>
+            <p class="tagline">From Learning to Engineering</p>
+            <p class="arabic-desc">منصتك الهندسية الشاملة للحسابات والتصميم</p>
+            <button id="btn-start" class="btn-primary">ابدأ</button>
+        </div>
+    </div>
+
+    <!-- صفحة المواد -->
+    <div id="page-subjects" class="page">
+        <header class="top-header">
+            <h2>المواد الهندسية</h2>
+        </header>
+        <main class="content-pad">
+            <div id="subjects-grid" class="grid-cards"></div>
+        </main>
+    </div>
+
+    <!-- صفحة الإنشائات: الموقع الثاني (بدون تعديل) يُحمَّل داخل iframe من public/structures -->
+    <div id="page-structures" class="page">
+        <header class="top-header">
+            <button class="btn-back" onclick="window.location.hash='#/subjects'">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <h2>الإنشائات</h2>
+        </header>
+        <iframe id="structures-frame" title="الإنشائات" data-src="structures/structural_stability_v6_fixed.html"></iframe>
+    </div>
+
+    <!-- صفحة ميكانيك التربة: صفحة مستقلة (soil.html) تُحمَّل داخل iframe -->
+    <div id="page-soil" class="page">
+        <header class="top-header">
+            <button class="btn-back" onclick="window.location.hash='#/subjects'">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <h2>ميكانيك التربة</h2>
+        </header>
+        <iframe id="soil-frame" title="ميكانيك التربة" data-src="soil.html"></iframe>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- صفحة الخرسانة المسلحة (الآلة الحاسبة هنا)  -->
+    <!-- ========================================== -->
+    <div id="page-concrete" class="page">
+        <header class="top-header">
+            <button class="btn-back" onclick="window.location.hash='#/subjects'">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="text-left" style="margin-right: 15px;">
+                <h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-0.5">المهندس الصغير</h2>
+                <div class="text-[11px] text-slate-400">التحليل الإنشائي للمقاطع والأحمال</div>
+            </div>
+        </header>
+
+        <div class="mobile-wrapper">
+            
+            <!-- أزرار اختيار الطريقة WSD / USD -->
+            <div class="panel p-3 mb-4 flex gap-2 justify-center bg-slate-900/50 rounded-xl border border-slate-800">
+                <button onclick="setMethod('wsd')" id="tab-wsd" class="flex-1 px-2 py-2 rounded-lg text-sm font-bold transition-all bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg">
+                    الإجهاد التشغيلي (WSD)
+                </button>
+                <button onclick="setMethod('usd')" id="tab-usd" class="flex-1 px-2 py-2 rounded-lg text-sm font-bold transition-all text-slate-400 hover:text-slate-200 bg-transparent">
+                    المقاومة القصوى (USD)
+                </button>
+            </div>
+
+            <!-- Validation Error Banner -->
+            <div id="validation-error" class="hidden mb-4 bg-rose-900/40 border border-rose-500 text-rose-300 p-3 rounded-xl text-sm font-bold shadow-lg"></div>
+
+            <!-- TOP SECTION: VISUALIZERS -->
+            <div class="grid grid-cols-12 gap-4 mb-4">
+                <div class="col-span-6 panel p-3 relative shadow-2xl flex flex-col items-center">
+                    <div class="w-full flex justify-between items-center px-2 mb-2">
+                        <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                            المقطع وتوزيع الإجهادات
+                        </span>
+                        <span id="shape-name-tag" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">مقطع مستطيل</span>
+                    </div>
+                    <div class="w-full h-[250px] bg-slate-950/70 rounded-xl relative flex justify-center items-center overflow-hidden border border-slate-800/80">
+                        <canvas id="vizCanvas" class="w-full h-full absolute inset-0"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-span-6 panel p-3 relative shadow-2xl flex flex-col items-center">
+                    <div class="w-full flex justify-between items-center px-2 mb-2">
+                        <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                            مخطط العزم (Beam)
+                        </span>
+                    </div>
+                    <div class="w-full h-[250px] bg-slate-950/70 rounded-xl relative flex justify-center items-center overflow-hidden border border-slate-800/80">
+                        <canvas id="beamCanvas" class="w-full h-full absolute inset-0"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DASHBOARD RESULTS SUMMARY -->
+            <div class="panel p-4 border-t-2 border-t-cyan-500 mb-4">
+                <div class="flex flex-wrap gap-2 justify-center items-stretch">
+                    <div class="flex-1 bg-slate-950/50 p-2 rounded-xl border border-slate-800 text-center min-w-[120px]">
+                        <div class="text-[10px] text-slate-400 mb-0.5"><span id="lbl-na-text">محور التعادل</span> <span id="lbl-na-var" class="text-cyan-400 font-bold">y</span></div>
+                        <div class="font-bold text-sm text-white dir-ltr"><span id="res-na">0</span> <span id="unit-na" class="text-[9px] text-slate-400">mm</span></div>
+                    </div>
+                    <div class="flex-1 bg-slate-950/50 p-2 rounded-xl border border-slate-800 text-center min-w-[120px]">
+                        <div class="text-[10px] text-slate-400 mb-0.5"><span id="lbl-i-text">عزم القصور</span> (<span id="lbl-i-var" class="text-cyan-400 font-bold">I</span>)</div>
+                        <div class="font-bold text-sm text-cyan-400 dir-ltr"><span id="res-i">0</span> <span id="unit-i" class="text-[9px] text-slate-400">x10⁶</span></div>
+                    </div>
+                    <div class="flex-1 bg-slate-950/50 p-2 rounded-xl border border-slate-800 text-center min-w-[120px]">
+                        <div class="text-[10px] text-slate-400 mb-0.5" id="lbl-fc-text">إجهاد الخرسانة (fc)</div>
+                        <div class="font-bold text-sm text-cyan-400 dir-ltr"><span id="res-fc">0</span> <span id="unit-fc" class="text-[9px] text-slate-400">MPa</span></div>
+                    </div>
+                    <div class="flex-1 bg-slate-950/50 p-2 rounded-xl border border-slate-800 text-center min-w-[120px]">
+                        <div class="text-[10px] text-slate-400 mb-0.5" id="lbl-fs-text">إجهاد الشد (fs)</div>
+                        <div class="font-bold text-sm text-rose-400 dir-ltr"><span id="res-fs">0</span> <span id="unit-fs" class="text-[9px] text-slate-400">MPa</span></div>
+                    </div>
+                    
+                    <div id="box-res-fsp" class="hidden flex-1 bg-slate-950/50 p-2 rounded-xl border border-slate-800 text-center min-w-[120px]">
+                        <div class="text-[10px] text-slate-400 mb-0.5" id="lbl-fsp-text">إجهاد الضغط حديد (f's)</div>
+                        <div class="font-bold text-sm text-amber-400 dir-ltr"><span id="res-fsp">0</span> <span id="unit-fsp" class="text-[9px] text-slate-400">MPa</span></div>
+                    </div>
+                    <div id="box-res-ft" class="hidden flex-1 bg-slate-950/50 p-2 rounded-xl border border-slate-800 text-center min-w-[120px]">
+                        <div class="text-[10px] text-slate-400 mb-0.5" id="lbl-ft-text">إجهاد الشد خرسانة (ft)</div>
+                        <div class="font-bold text-sm text-fuchsia-400 dir-ltr"><span id="res-ft">0</span> <span id="unit-ft" class="text-[9px] text-slate-400">MPa</span></div>
+                    </div>
+
+                    <div class="flex-1 bg-slate-950/50 p-2 rounded-xl border border-slate-800 text-center min-w-[120px]">
+                        <div class="text-[10px] text-slate-400 mb-0.5" id="lbl-m">العزم المسلط (M)</div>
+                        <div class="font-bold text-sm text-emerald-400 dir-ltr"><span id="res-m">0</span> <span class="text-[9px] text-slate-400">kN.m</span></div>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-3 border-t border-slate-800 flex flex-col gap-2">
+                    <div class="flex justify-between items-center bg-slate-900 p-2 rounded">
+                        <span id="lbl-mcap" class="text-xs text-emerald-400 font-bold">عزم التحمل الأقصى:</span>
+                        <span class="font-extrabold text-white text-sm dir-ltr"><span id="res-mcap">0</span> <span class="text-xs text-slate-400 font-normal">kN.m</span></span>
+                    </div>
+                    <div id="stat-fc" class="text-[10px] font-semibold p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-right w-full flex flex-col justify-center">
+                        جاري التحليل...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Solution Steps Panel -->
+            <div class="panel p-4 border-t-2 border-t-amber-500 mb-4">
+                <h2 class="text-amber-400 font-bold text-sm mb-2 flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    خطوات الحل
+                </h2>
+                <div id="solution-steps" class="text-[10px] text-slate-300 font-mono dir-ltr text-left bg-slate-950/80 p-3 rounded-xl border border-slate-800 h-40 overflow-y-auto custom-scrollbar">
+                    <!-- Steps injected by JS -->
+                </div>
+            </div>
+
+            <!-- BOTTOM CONTROLS SECTION -->
+            <main class="w-full grid grid-cols-12 gap-4">
+                
+                <!-- Left Column -->
+                <div class="col-span-6 flex flex-col gap-4">
+                    
+                    <div class="panel p-4">
+                        <h2 class="text-cyan-400 font-bold text-sm mb-3 pb-2 border-b border-slate-800 flex justify-between items-center">
+                            <span>1. اختر شكل المقطع</span>
+                        </h2>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setShape('rect')" id="btn-rect" class="shape-btn active p-2 rounded-xl flex flex-col items-center gap-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="1"/></svg>
+                                <span class="text-[10px] font-bold">مستطيل</span>
+                            </button>
+                            <button onclick="setShape('t')" id="btn-t" class="shape-btn p-2 rounded-xl flex flex-col items-center gap-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18v4h-7v12h-4V8H3z"/></svg>
+                                <span class="text-[10px] font-bold">مقطع T</span>
+                            </button>
+                            <button onclick="setShape('i')" id="btn-i" class="shape-btn p-2 rounded-xl flex flex-col items-center gap-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v3h-6.5v10H16v3H8v-3h2.5V7H4z"/></svg>
+                                <span class="text-[10px] font-bold">مقطع I</span>
+                            </button>
+                            <button onclick="setShape('box')" id="btn-box" class="shape-btn p-2 rounded-xl flex flex-col items-center gap-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+                                <span class="text-[10px] font-bold">صندوقي</span>
+                            </button>
+                            <button onclick="setShape('u')" id="btn-u" class="shape-btn p-2 rounded-xl flex flex-col items-center gap-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V8h4v10h8V8h4v12z"/></svg>
+                                <span class="text-[10px] font-bold">U مقلوب</span>
+                            </button>
+                            <button onclick="setShape('circle')" id="btn-circle" class="shape-btn p-2 rounded-xl flex flex-col items-center gap-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+                                <span class="text-[10px] font-bold">دائري</span>
+                            </button>
+                        </div>
+
+                        <div id="wsd-cond-toggle" class="flex gap-2 mt-3 pt-3 border-t border-slate-800">
+                            <button onclick="setCondition('cracked')" id="btn-cracked" class="flex-1 py-1 px-2 rounded-lg text-[11px] font-bold transition-all bg-transparent text-slate-400 hover:text-white border border-transparent">
+                                متشقق
+                            </button>
+                            <button onclick="setCondition('uncracked')" id="btn-uncracked" class="flex-1 py-1 px-2 rounded-lg text-[11px] font-bold transition-all bg-slate-800 text-white border border-cyan-500">
+                                غير متشقق
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="panel p-4 space-y-3">
+                        <h2 class="text-amber-400 font-bold text-sm mb-2 border-b border-slate-800 pb-2">
+                            2. نظام الإسناد والأحمال
+                        </h2>
+                        
+                        <div class="flex flex-col gap-2 mb-2 bg-slate-900/60 p-2.5 rounded-xl border border-slate-700">
+                            <label class="text-[11px] text-slate-300 font-bold">المجهول (Unknown):</label>
+                            <select id="inp-mainUnknown" class="input-box text-xs font-bold text-emerald-400" onchange="updateMainUnknown(this.value)">
+                                <option value="check" selected>الإجهادات (WSD) / الأمان (USD)</option>
+                                <option value="find_load">الحمل (من قدرة المقطع)</option>
+                                <option value="find_as">مساحة الحديد As</option>
+                            </select>
+                        </div>
+
+                        <div class="flex flex-col gap-2 mb-3 bg-slate-900/60 p-2.5 rounded-xl border border-slate-700">
+                            <label class="text-[11px] text-slate-300 font-bold">مصدر العزم:</label>
+                            <select id="inp-momentSource" class="input-box text-xs font-bold text-blue-400" onchange="update('momentSource', this.value, this)">
+                                <option value="loads">حساب من الأحمال (Beam Loads)</option>
+                                <option value="direct" selected>إدخال مباشر (Direct Moment)</option>
+                            </select>
+                        </div>
+
+                        <div id="box-direct-m" class="mb-2 bg-blue-900/20 p-3 rounded-xl border border-blue-800/50">
+                            <label class="block text-xs text-blue-300 mb-2">العزم المسلط (M) kN.m</label>
+                            <input type="number" id="inp-directM" value="34" class="input-box text-sm font-bold text-blue-400" oninput="update('directM', this.value, this)">
+                        </div>
+
+                        <div id="box-loads-inputs" class="hidden">
+                            <div class="mb-3">
+                                <label class="block text-[10px] text-slate-400 mb-1">نوع البيم وحالة الحمل</label>
+                                <select id="inp-beamCase" class="input-box text-xs w-full font-bold text-amber-300" onchange="setBeamCase(this.value)">
+                                    <optgroup label="إسناد بسيط (Simply Supported)">
+                                        <option value="ss_udl">حمل منتشر فقط (W)</option>
+                                        <option value="ss_p_center" selected>حمل مركز بالوسط (P)</option>
+                                        <option value="ss_2p">حملين متماثلين (P, P)</option>
+                                        <option value="ss_udl_p">منتشر (W) + مركز بالوسط (P)</option>
+                                        <option value="ss_udl_2p">منتشر (W) + حملين متماثلين (P, P)</option>
+                                    </optgroup>
+                                    <optgroup label="كابولي - ناتئ (Cantilever)">
+                                        <option value="cant_udl">حمل منتشر فقط (W)</option>
+                                        <option value="cant_p_end">حمل مركز بالنهاية (P)</option>
+                                        <option value="cant_p_center">حمل مركز بالوسط (P)</option>
+                                        <option value="cant_udl_p_end">منتشر (W) + مركز بالنهاية (P)</option>
+                                        <option value="cant_udl_p_center">منتشر (W) + مركز بالوسط (P)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
+                                        <label>الطول الكلي L (m)</label>
+                                        <input type="number" id="val-L" value="6.0" class="w-16 bg-transparent text-amber-300 font-bold text-left outline-none border-b border-slate-700" oninput="document.getElementById('inp-L').value=this.value; update('L', this.value, this)">
+                                    </div>
+                                    <input type="range" id="inp-L" min="1" max="4000" step="0.1" value="6.0" oninput="update('L', this.value, this)">
+                                </div>
+                                
+                                <div id="box-load-p">
+                                    <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
+                                        <label id="lbl-loadP">الحمل المركز P (kN)</label>
+                                        <input type="number" id="val-loadP" value="48.8" class="w-16 bg-transparent text-amber-300 font-bold text-left outline-none border-b border-slate-700" oninput="document.getElementById('inp-loadP').value=this.value; update('loadP', this.value, this)">
+                                    </div>
+                                    <input type="range" id="inp-loadP" min="0" max="4000" step="1" value="48.8" oninput="update('loadP', this.value, this)">
+                                </div>
+                                
+                                <div id="box-load-w" class="hidden">
+                                    <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
+                                        <label id="lbl-loadW">الحمل المنتشر W (kN/m)</label>
+                                        <input type="number" id="val-loadW" value="10" class="w-16 bg-transparent text-amber-300 font-bold text-left outline-none border-b border-slate-700" oninput="document.getElementById('inp-loadW').value=this.value; update('loadW', this.value, this)">
+                                    </div>
+                                    <input type="range" id="inp-loadW" min="0" max="4000" step="1" value="10" oninput="update('loadW', this.value, this)">
+                                </div>
+                                
+                                <div id="box-load-a" class="hidden">
+                                    <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
+                                        <label>المسافة a (m)</label>
+                                        <input type="number" id="val-loadA" value="2.0" class="w-16 bg-transparent text-amber-300 font-bold text-left outline-none border-b border-slate-700" oninput="document.getElementById('inp-loadA').value=this.value; update('loadA', this.value, this)">
+                                    </div>
+                                    <input type="range" id="inp-loadA" min="0" max="2000" step="0.1" value="2.0" oninput="update('loadA', this.value, this)">
+                                </div>
+
+                                <!-- DL Equation Panel (Simplified for Mobile) -->
+                                <div id="dl-panel" class="hidden mt-3 p-2 bg-slate-900/40 rounded-xl border border-slate-700/50">
+                                    <div class="text-[10px] text-emerald-400 font-bold mb-2 flex flex-col gap-2">
+                                        <span id="dl-main-title">P = γD·D + γL·L</span>
+                                        <div class="flex gap-2 text-slate-300">
+                                            <label class="flex items-center gap-1">γD <input type="number" id="inp-gammaD" class="input-box w-12 py-0.5 px-1 text-center text-[10px]" oninput="handleDLChange('gammaD', this.value)"></label>
+                                            <label class="flex items-center gap-1">γL <input type="number" id="inp-gammaL" class="input-box w-12 py-0.5 px-1 text-center text-[10px]" oninput="handleDLChange('gammaL', this.value)"></label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="dl-udl-block" class="mb-2 p-2 border border-slate-700/50 rounded bg-slate-800/30">
+                                        <div class="flex flex-col gap-1 mb-1">
+                                            <span id="dl-udl-title" class="text-[10px] text-slate-400 font-bold">W (kN/m)</span>
+                                            <label id="lbl-udl-link" class="text-[9px] text-cyan-400 flex items-center gap-1 cursor-pointer">
+                                                <input type="checkbox" id="inp-udl-link" checked onchange="handleDLChange('udl_link', this.checked)">
+                                                ربط بالحمل الأقصى
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center gap-2 mb-1 text-[9px] text-slate-300">
+                                            <span>المجهول:</span>
+                                            <label><input type="radio" name="udl_unk" value="T" onchange="handleDLChange('udl_unk', 'T')"> T</label>
+                                            <label><input type="radio" name="udl_unk" value="D" onchange="handleDLChange('udl_unk', 'D')"> D</label>
+                                            <label><input type="radio" name="udl_unk" value="L" checked onchange="handleDLChange('udl_unk', 'L')"> L</label>
+                                        </div>
+                                        <div class="flex gap-1">
+                                            <label class="text-[9px] text-slate-300 flex-1">D:<input type="number" id="inp-udl-D" class="input-box w-full p-1 text-center" oninput="handleDLChange('udl_D', this.value)"></label>
+                                            <label class="text-[9px] text-slate-300 flex-1">L:<input type="number" id="inp-udl-L" class="input-box w-full p-1 text-center" oninput="handleDLChange('udl_L', this.value)"></label>
+                                            <label class="text-[9px] text-slate-300 flex-1">T:<input type="number" id="inp-udl-T" class="input-box w-full p-1 text-center" oninput="handleDLChange('udl_T', this.value)"></label>
+                                        </div>
+                                        <div id="udl-msg" class="text-[9px] mt-1 hidden"></div>
+                                    </div>
+                                    
+                                    <div id="dl-p-block" class="mb-2 p-2 border border-slate-700/50 rounded bg-slate-800/30">
+                                        <div class="flex flex-col gap-1 mb-1">
+                                            <span id="dl-p-title" class="text-[10px] text-slate-400 font-bold">P (kN)</span>
+                                            <label id="lbl-p-link" class="text-[9px] text-cyan-400 flex items-center gap-1 cursor-pointer">
+                                                <input type="checkbox" id="inp-p-link" checked onchange="handleDLChange('p_link', this.checked)">
+                                                ربط بالحمل الأقصى
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center gap-2 mb-1 text-[9px] text-slate-300">
+                                            <span>المجهول:</span>
+                                            <label><input type="radio" name="p_unk" value="T" onchange="handleDLChange('p_unk', 'T')"> T</label>
+                                            <label><input type="radio" name="p_unk" value="D" onchange="handleDLChange('p_unk', 'D')"> D</label>
+                                            <label><input type="radio" name="p_unk" value="L" checked onchange="handleDLChange('p_unk', 'L')"> L</label>
+                                        </div>
+                                        <div class="flex gap-1">
+                                            <label class="text-[9px] text-slate-300 flex-1">D:<input type="number" id="inp-p-D" class="input-box w-full p-1 text-center" oninput="handleDLChange('p_D', this.value)"></label>
+                                            <label class="text-[9px] text-slate-300 flex-1">L:<input type="number" id="inp-p-L" class="input-box w-full p-1 text-center" oninput="handleDLChange('p_L', this.value)"></label>
+                                            <label class="text-[9px] text-slate-300 flex-1">T:<input type="number" id="inp-p-T" class="input-box w-full p-1 text-center" oninput="handleDLChange('p_T', this.value)"></label>
+                                        </div>
+                                        <div id="p-msg" class="text-[9px] mt-1 hidden"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel p-4 space-y-3">
+                        <h2 class="text-cyan-400 font-bold text-sm mb-2 border-b border-slate-800 pb-2">3. أبعاد المقطع (مم)</h2>
+                        
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-slate-400"><label>الارتفاع (h)</label><span id="val-h" class="text-cyan-300 font-bold">500</span></div>
+                            <input type="range" min="200" max="1500" step="10" value="500" oninput="update('h', this.value, this)">
+                        </div>
+                        
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-slate-400"><label id="lbl-b">العرض (b)</label><span id="val-b" class="text-cyan-300 font-bold">250</span></div>
+                            <input type="range" min="150" max="1200" step="10" value="250" oninput="update('b', this.value, this)">
+                        </div>
+
+                        <div id="grp-bw" class="space-y-1 hidden">
+                            <div class="flex justify-between text-xs text-slate-400"><label id="lbl-bw">الجذع (bw)</label><span id="val-bw" class="text-cyan-300 font-bold">300</span></div>
+                            <input type="range" min="50" max="800" step="10" value="300" oninput="update('bw', this.value, this)">
+                        </div>
+
+                        <div id="grp-hf" class="space-y-1 hidden">
+                            <div class="flex justify-between text-xs text-slate-400"><label id="lbl-hf">الشفة (hf)</label><span id="val-hf" class="text-cyan-300 font-bold">100</span></div>
+                            <input type="range" min="50" max="400" step="5" value="100" oninput="update('hf', this.value, this)">
+                        </div>
+                        
+                        <div id="grp-hb" class="space-y-1 hidden">
+                            <div class="flex justify-between text-xs text-slate-400"><label>الشفة (hb)</label><span id="val-hb" class="text-cyan-300 font-bold">50</span></div>
+                            <input type="range" min="50" max="400" step="5" value="50" oninput="update('hb', this.value, this)">
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column (under left in mobile) -->
+                <div class="col-span-6 flex flex-col gap-4">
+                    
+                    <div class="panel p-4 space-y-3">
+                        <h2 class="text-cyan-400 font-bold text-sm mb-2 border-b border-slate-800 pb-2">4. التسليح</h2>
+                        
+                        <div class="flex flex-col gap-2 mb-3 bg-slate-900/60 p-2.5 rounded-xl border border-slate-700">
+                            <label class="text-[11px] text-slate-300 font-bold">طريقة الإدخال:</label>
+                            <select id="inp-steelMode" class="input-box text-xs font-bold text-rose-400" onchange="update('steelMode', this.value, this)">
+                                <option value="bars">أقطار وأعداد</option>
+                                <option value="area" selected>مساحة مباشرة (As)</option>
+                            </select>
+                        </div>
+
+                        <div id="box-steel-bars" class="flex flex-col gap-3 hidden">
+                            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                <div class="text-xs text-rose-400 font-bold mb-2">تسليح الشد السفلي (As)</div>
+                                <div class="flex gap-2 items-center">
+                                    <button onclick="modBar('bot', -1)" class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 font-bold">-</button>
+                                    <span id="val-botBars" class="w-6 text-center font-bold">2</span>
+                                    <button onclick="modBar('bot', 1)" class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 font-bold">+</button>
+                                    <select id="inp-botDia" class="flex-1 input-box text-xs" onchange="update('botDia', this.value, this)">
+                                        <option value="12">Ø 12</option>
+                                        <option value="16">Ø 16</option>
+                                        <option value="20">Ø 20</option>
+                                        <option value="25" selected>Ø 25</option>
+                                        <option value="32">Ø 32</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                <div class="text-xs text-amber-400 font-bold mb-2">الضغط العلوي (A's)</div>
+                                <div class="flex gap-2 items-center">
+                                    <button onclick="modBar('top', -1)" class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 font-bold">-</button>
+                                    <span id="val-topBars" class="w-6 text-center font-bold">0</span>
+                                    <button onclick="modBar('top', 1)" class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 font-bold">+</button>
+                                    <select id="inp-topDia" class="flex-1 input-box text-xs" onchange="update('topDia', this.value, this)">
+                                        <option value="12">Ø 12</option>
+                                        <option value="16" selected>Ø 16</option>
+                                        <option value="20">Ø 20</option>
+                                        <option value="25">Ø 25</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="box-steel-area" class="flex flex-col gap-3">
+                            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                <div class="text-xs text-rose-400 font-bold mb-2">مساحة الشد السفلي (As) mm²</div>
+                                <input type="number" id="inp-As_direct" value="2119.5" class="input-box text-sm font-bold text-rose-400" oninput="update('As_direct', this.value, this)">
+                            </div>
+                            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                <div class="text-xs text-amber-400 font-bold mb-2">مساحة الضغط العلوي (A's) mm²</div>
+                                <input type="number" id="inp-Asp_direct" value="0" class="input-box text-sm font-bold text-amber-400" oninput="update('Asp_direct', this.value, this)">
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 bg-slate-950/40 p-2 rounded-xl">
+                            <div class="flex-1">
+                                <label class="block text-[10px] text-slate-400 mb-1">غطاء الشد (Cover)</label>
+                                <input type="number" value="50" class="input-box text-xs" oninput="update('cover', this.value, this)">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-[10px] text-slate-400 mb-1">غطاء الضغط (d')</label>
+                                <input type="number" value="50" class="input-box text-xs" oninput="update('dp_val', this.value, this)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel p-4 mb-10">
+                        <h2 class="text-cyan-400 font-bold text-sm mb-3 border-b border-slate-800 pb-2">5. المواد</h2>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">f'c (MPa)</label>
+                                <input type="number" value="30" class="input-box text-xs p-1" oninput="update('fc', this.value, this)">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">fy (MPa)</label>
+                                <input type="number" value="400" class="input-box text-xs p-1" oninput="update('fy', this.value, this)">
+                            </div>
+                            <div>
+                                <label class="flex justify-between items-center text-[10px] text-slate-400 mb-1">
+                                    (n)
+                                    <button onclick="autoCalcN()" class="text-[8px] bg-slate-800 text-cyan-400 px-1 py-0.5 rounded border border-slate-700">تلقائي</button>
+                                </label>
+                                <input type="number" id="inp-n" value="8" class="input-box text-xs p-1" oninput="update('n', this.value, this)">
+                            </div>
+                        </div>
+
+                        <div id="wsd-allow-grp" class="flex flex-col gap-2 mt-3 pt-3 border-t border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <label class="flex-1 text-[10px] text-slate-400">
+                                    إجهاد خرسانة مسموح
+                                    <input type="checkbox" id="auto-fc" checked onchange="toggleAuto('fc', this.checked)"> تلقائي
+                                </label>
+                                <input type="number" id="inp-fc_all" value="13.5" class="input-box w-20 text-xs p-1" oninput="update('fc_all', this.value, this)" disabled>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="flex-1 text-[10px] text-slate-400">
+                                    إجهاد حديد مسموح
+                                    <input type="checkbox" id="auto-fs" checked onchange="toggleAuto('fs', this.checked)"> تلقائي
+                                </label>
+                                <input type="number" id="inp-fs_all" value="170" class="input-box w-20 text-xs p-1" oninput="update('fs_all', this.value, this)" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- سكربتات التطبيق والآلة الحاسبة             -->
+    <!-- ========================================== -->
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

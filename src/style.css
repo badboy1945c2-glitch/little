@@ -1,0 +1,100 @@
+/* ملف التنسيقات. الترتيب مهم ولا تغيّره:
+   تنسيقاتك الخاصة أولاً، وبعدها Tailwind. هيج يطلع الشكل نفس ما كان بالـ CDN بالضبط. */
+
+        /* === 1. تنسيقات التطبيق الأساسي (Little Eng SPA) === */
+        :root { --bg-color: #f8fafc; --text-main: #0f172a; --text-muted: #64748b; --card-bg: #ffffff; --primary: #2563eb; --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-top: env(safe-area-inset-top, 0px); }
+        @media (prefers-color-scheme: dark) { :root { --bg-color: #0f172a; --text-main: #f8fafc; --text-muted: #94a3b8; --card-bg: #1e293b; } }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Tajawal', system-ui, sans-serif; background-color: var(--bg-color); color: var(--text-main); overscroll-behavior: none; touch-action: manipulation; height: 100vh; height: 100dvh; overflow: hidden; }
+        
+        .page { display: none; height: 100%; width: 100%; overflow-y: auto; padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); animation: fadeIn 0.3s ease; -webkit-overflow-scrolling: touch; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        
+        /* الترحيب */
+        .welcome-content { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px; }
+        .logo-placeholder svg { margin-bottom: 1rem; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .welcome-content h1 { font-size: 2.5rem; color: var(--primary); font-weight: 800; margin-bottom: 0.2rem;}
+        .tagline { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1rem; direction: ltr;}
+        .arabic-desc { margin-bottom: 2.5rem; font-size: 1.1rem; }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 14px 45px; font-size: 18px; font-family: inherit; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); transition: transform 0.2s; width: auto; }
+        .btn-primary:active { transform: scale(0.95); }
+        
+        /* الهيدر العام وكروت المواد */
+        .top-header { padding: 20px; background: var(--bg-color); position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 15px;}
+        .top-header h2 { font-weight: 800; font-size: 1.5rem; margin:0;}
+        .btn-back { background: transparent; border: none; color: var(--text-main); cursor: pointer; display: flex; align-items: center; padding: 5px; }
+        .content-pad { padding: 0 20px 20px 20px; }
+        .grid-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .card { background: var(--card-bg); padding: 20px 15px; border-radius: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.03); position: relative; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+        .card:active { transform: scale(0.96); }
+        .card.soon { opacity: 0.6; cursor: not-allowed; }
+        .card.soon:active { transform: none; }
+        .card .emoji { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .card h3 { font-size: 1rem; margin-bottom: 6px; font-weight: 700; }
+        .card p { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+        
+        /* === 2. تنسيقات حاسبة الخرسانة (كما أرسلتها مع تعديلات بسيطة للموبايل) === */
+        #page-concrete {
+            background: linear-gradient(135deg, #090d16, #111827, #090d16); 
+            background-attachment: fixed;
+            color: #f1f5f9; 
+            font-family: 'Cairo', sans-serif;
+            /* تغطية الهيدر الخاص بالتطبيق عشان لون الخلفية */
+            padding-top: 0; 
+        }
+        #page-concrete .top-header {
+            background: #090d16;
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-top: calc(20px + var(--safe-top));
+        }
+        #page-concrete .btn-back { color: white; }
+
+        .panel { 
+            background: rgba(17, 24, 39, 0.75); 
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 16px; 
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+            margin-bottom: 1rem; /* اضافة هامش بالموبايل */
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #38bdf8; cursor: pointer; margin-top: -7px; box-shadow: 0 0 12px rgba(56,189,248,0.6); transition: transform 0.2s; }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: rgba(255,255,255,0.2); border-radius: 2px; }
+        
+        .shape-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; background: rgba(15, 23, 42, 0.6); }
+        .shape-btn.active { border-color: #38bdf8; background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(59,130,246,0.3)); color: #38bdf8; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56,189,248,0.25); }
+        
+        .input-box { background-color: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.12); color: #f8fafc; border-radius: 8px; padding: 6px 10px; width: 100%; outline: none; transition: all 0.2s; }
+        .input-box:focus { border-color: #38bdf8; background-color: rgba(15, 23, 42, 1); box-shadow: 0 0 10px rgba(56,189,248,0.2); }
+        .input-box:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        input[type=number] { direction: ltr; text-align: right; }
+        canvas { touch-action: none; border-radius: 12px; }
+
+        /* تعديلات للموبايل للآلة الحاسبة */
+        .mobile-wrapper { padding: 15px; }
+        .grid-cols-12 { display: flex; flex-direction: column; } /* إلغاء نظام الأعمدة للابتوب وجعلها تحت بعض */
+        .col-span-6 { width: 100%; }
+        .min-w-[120px] { min-width: 45%; } /* تصغير الكروت شوي */
+        #solution-steps { max-height: 200px; }
+        
+        /* إخفاء الهيدر الداخلي للآلة الحاسبة (استبدلناه بهيدر التطبيق) */
+        .calc-internal-header { display: none !important; }
+
+/* === صفحتا الإنشائات وميكانيك التربة (iframe) === */
+#page-structures, #page-soil { overflow: hidden; padding-bottom: 0; }
+#page-structures .top-header, #page-soil .top-header { position: relative; }
+#structures-frame, #soil-frame { display: block; width: 100%; height: calc(100% - 72px - var(--safe-bottom)); border: 0; background: #eff2f1; }
+#soil-frame { background: #ffffff; }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

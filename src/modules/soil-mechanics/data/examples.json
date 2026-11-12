@@ -1,0 +1,230 @@
+[
+  {
+    "id": "T-P01",
+    "warn": false,
+    "group": "الأطوار (المحرك الذكي)",
+    "source": "مثال 1 ص 11",
+    "givens": "γ=19.80، G=2.70، w=11%",
+    "expected": "γd=17.84، e=0.485، S=61.24%",
+    "tolerance": "γd ±0.02، e ±0.002، S ±0.3%"
+  },
+  {
+    "id": "T-P03",
+    "warn": false,
+    "group": "الأطوار (المحرك الذكي)",
+    "source": "مثال 3 ص 12–13",
+    "givens": "γ=20.1، w=15%، ثم e ثابتة وγ=19.4",
+    "expected": "γd≈17.5، والمحتوى المائي الجديد 10.86% (الدقيق 10.99%)",
+    "tolerance": "w ±0.2%"
+  },
+  {
+    "id": "T-P04a",
+    "warn": false,
+    "group": "الأطوار (المحرك الذكي)",
+    "source": "مثال 4 ص 13",
+    "givens": "e=0.65، G=2.80، جافة (S=0)",
+    "expected": "γd=16.65",
+    "tolerance": "±0.02"
+  },
+  {
+    "id": "T-P04b",
+    "warn": false,
+    "group": "الأطوار (المحرك الذكي)",
+    "source": "مثال 4 ص 13–14",
+    "givens": "e=0.65، G=2.80، S=60%",
+    "expected": "w=13.93%، γ=18.97",
+    "tolerance": "±0.02"
+  },
+  {
+    "id": "T-P04c",
+    "warn": false,
+    "group": "الأطوار (المحرك الذكي)",
+    "source": "مثال 4 ص 14",
+    "givens": "e=0.65، G=2.80، S=95%",
+    "expected": "γ=20.32",
+    "tolerance": "±0.02"
+  },
+  {
+    "id": "T-P04d",
+    "warn": false,
+    "group": "الأطوار (المحرك الذكي)",
+    "source": "مثال 4 ص 14",
+    "givens": "e=0.65، G=2.80، S=100%",
+    "expected": "γsat=20.51",
+    "tolerance": "±0.02"
+  },
+  {
+    "id": "T-P02",
+    "warn": true,
+    "group": "الأطوار (المحرك الذكي)",
+    "source": "مثال 2 ص 11–12",
+    "givens": "D=3.81 cm، H=7.62 cm، Ww+Ws=1.668 N، Ws=1.400 N، G=2.7",
+    "expected": "w=19.14%، V=86.87 cm³ **فقط**. أما γ فمحاضرة 18.84 والصحيح بالوحدات 19.20 (انظر القسم 10)",
+    "tolerance": "w ±0.05"
+  },
+  {
+    "id": "T-P05",
+    "warn": true,
+    "group": "الأطوار (المحرك الذكي)",
+    "source": "مثال 5 ص 14–16",
+    "givens": "G=2.6، W=2.50 N، Ws=2.10 N، V=150 cm³",
+    "expected": "w=19.05% فقط. e وS: المحاضرة 58% والصحيح بالوحدات 60.3% (انظر القسم 10)",
+    "tolerance": "w ±0.05"
+  },
+  {
+    "id": "T-G01",
+    "warn": false,
+    "group": "التحليل الحبيبي",
+    "source": "مثال 6 ص 21–22",
+    "givens": "كتل (g) على المناخل 4، 10، 20، 40، 60، 100، 200، Pan = 0، 21.6، 49.5، 102.6، 89.1، 95.6، 60.4، 31.2",
+    "expected": "النسبة المارة: 100، 95.2، 84.2، 61.4، 41.6، 20.4، 6.9",
+    "tolerance": "±0.05"
+  },
+  {
+    "id": "T-G02",
+    "warn": false,
+    "group": "التحليل الحبيبي",
+    "source": "مثال 6",
+    "givens": "D60=0.41، D30=0.185، D10=0.09 (قراءة المحاضرة)",
+    "expected": "Cu=4.56، Cc=0.93",
+    "tolerance": "±0.01"
+  },
+  {
+    "id": "T-G03",
+    "warn": false,
+    "group": "التحليل الحبيبي",
+    "source": "مثال 6",
+    "givens": "استيفاء من الجدول",
+    "expected": "D60≈0.41، D30≈0.185، D10≈0.09",
+    "tolerance": "±8%"
+  },
+  {
+    "id": "T-G04",
+    "warn": false,
+    "group": "التحليل الحبيبي",
+    "source": "مثال 7 ص 23–25",
+    "givens": "(الحجم mm، النسبة المارة): (0.425,100) (0.033,90) (0.018,80) (0.01,70) (0.0062,60) (0.0035,50) (0.0018,40) (0.001,35)",
+    "expected": "طين عند 0.002 mm ≈ 42%. MIT: 0 / 5 / 53 / 42، USDA: 0 / 6 / 52 / 42، AASHTO: 0 / 4 / 54 / 42 (حصى / رمل / غرين / طين)",
+    "tolerance": "الطين ±1.5، الباقي ±3 (المحاضرة تقرأ المنحنى باليد)"
+  },
+  {
+    "id": "T-A01",
+    "warn": false,
+    "group": "أتربرغ",
+    "source": "مثال 8 ص 29",
+    "givens": "LL=56%، PI=15%",
+    "expected": "PL=41%، عند w=45% التربة لدنة"
+  },
+  {
+    "id": "T-A02",
+    "warn": false,
+    "group": "أتربرغ",
+    "source": "مثال 8 ص 29",
+    "givens": "e=0.88، G=2.71",
+    "expected": "SL = 32.5%"
+  },
+  {
+    "id": "T-A03",
+    "warn": false,
+    "group": "أتربرغ",
+    "source": "مثال 9 ص 29",
+    "givens": "PL=25، PI=30، w=34",
+    "expected": "LL=55، LI=0.30، CI=0.70"
+  },
+  {
+    "id": "T-A04",
+    "warn": false,
+    "group": "أتربرغ",
+    "source": "مثال 10 ص 30",
+    "givens": "e=0.50، G=2.72",
+    "expected": "SL = 18.4%"
+  },
+  {
+    "id": "T-A05",
+    "warn": false,
+    "group": "أتربرغ",
+    "source": "مثال 11 ص 30",
+    "givens": "LL=48، PL=26، w=39، طين 42%",
+    "expected": "PI=22، A=0.52 (Inactive)، LI=0.59"
+  },
+  {
+    "id": "T-C01",
+    "warn": false,
+    "group": "التصنيف",
+    "source": "مثال 12 ص 40 (AASHTO)",
+    "givens": "P10=42، P40=35، P200=20، LL=25، PL=20",
+    "expected": "حبيبية، A-1-b (PI=5)"
+  },
+  {
+    "id": "T-C02",
+    "warn": false,
+    "group": "التصنيف",
+    "source": "مثال 13 ص 40 (AASHTO)",
+    "givens": "P200=95، LL=60، PI=40",
+    "expected": "A-7-6، GI=42"
+  },
+  {
+    "id": "T-C03",
+    "warn": false,
+    "group": "التصنيف",
+    "source": "مثال 14 ص 41 (USCS)",
+    "givens": "P10=100، P40=80، P200=58، LL=30، PI=10 (لا يوجد P4: يُستنتج P4=100 لأن P10=100)",
+    "expected": "CL، الاسم Sandy lean clay"
+  },
+  {
+    "id": "T-C04",
+    "warn": false,
+    "group": "التصنيف",
+    "source": "مثال 15 ص 41–42 (USCS)",
+    "givens": "P4=70، P200=30، LL=33، PL=12",
+    "expected": "SC (PI=21 فوق خط A)، الاسم Clayey sand with gravel"
+  },
+  {
+    "id": "T-C05",
+    "warn": false,
+    "group": "التصنيف",
+    "source": "مثال 16 ص 43 تربة A",
+    "givens": "P200=8، المحتجز على منخل 4 = 0 (P4=100)، D10=0.085، D30=0.12، D60=0.135، LL=30، PL=22",
+    "expected": "Cu=1.59، Cc=1.25، SP-SC، الاسم Poorly graded sand with clay"
+  },
+  {
+    "id": "T-C06",
+    "warn": false,
+    "group": "التصنيف",
+    "source": "مثال 16 ص 44 تربة B",
+    "givens": "P200=61، LL=26، PL=20",
+    "expected": "CL-ML، الاسم Sandy silty clay"
+  },
+  {
+    "id": "T-C07",
+    "warn": false,
+    "group": "التصنيف",
+    "source": "مثال USDA ص 32 تربة A",
+    "givens": "رمل 30، غرين 40، طين 30",
+    "expected": "Clay loam"
+  },
+  {
+    "id": "T-C08",
+    "warn": false,
+    "group": "التصنيف",
+    "source": "مثال USDA ص 32 تربة B",
+    "givens": "حصى 20، رمل 10، غرين 30، طين 40",
+    "expected": "بعد التصحيح 12.5 / 37.5 / 50 ← Clay"
+  },
+  {
+    "id": "T-C09",
+    "warn": false,
+    "group": "التصنيف",
+    "source": "واجب 1 ص 45 تربة A",
+    "givens": "P4=98، P10=90، P40=76، P200=34، LL=38، PL=26",
+    "expected": "AASHTO: A-2-6. USCS: SM، الاسم Silty sand"
+  },
+  {
+    "id": "T-C10",
+    "warn": false,
+    "group": "التصنيف",
+    "source": "واجب 1 ص 45 تربة B",
+    "givens": "P4=100، P10=98، P40=86، P200=58، LL=49، PL=28",
+    "expected": "AASHTO: A-7-6. USCS: ML، الاسم Sandy silt"
+  }
+]

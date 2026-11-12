@@ -1,0 +1,10 @@
+[
+  {
+    "key": "gamma_w",
+    "symbol": "γw",
+    "value": 9.81,
+    "unit": "kN/m³",
+    "note": "يساوي 1 g/cm³ أو 1000 kg/m³",
+    "page": 6
+  }
+]

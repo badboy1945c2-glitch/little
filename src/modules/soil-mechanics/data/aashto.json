@@ -1,0 +1,74 @@
+{
+  "granular": {
+    "when": "P200 <= 35",
+    "groups": [
+      {
+        "g": "A-1-a",
+        "rule": "P10 <= 50 && P40 <= 30 && P200 <= 15 && PI <= 6",
+        "materials": "Stone fragments, gravel and sand"
+      },
+      {
+        "g": "A-1-b",
+        "rule": "P40 <= 50 && P200 <= 25 && PI <= 6",
+        "materials": "Stone fragments, gravel and sand"
+      },
+      {
+        "g": "A-3",
+        "rule": "P40 >= 51 && P200 <= 10 && NP",
+        "materials": "Fine sand"
+      },
+      {
+        "g": "A-2-4",
+        "rule": "LL <= 40 && PI <= 10",
+        "materials": "Silty or clayey gravel and sand"
+      },
+      {
+        "g": "A-2-5",
+        "rule": "LL >= 41 && PI <= 10",
+        "materials": "Silty or clayey gravel and sand"
+      },
+      {
+        "g": "A-2-6",
+        "rule": "LL <= 40 && PI >= 11",
+        "materials": "Silty or clayey gravel and sand"
+      },
+      {
+        "g": "A-2-7",
+        "rule": "LL >= 41 && PI >= 11",
+        "materials": "Silty or clayey gravel and sand"
+      }
+    ],
+    "rating": "Excellent to good"
+  },
+  "siltClay": {
+    "when": "P200 > 35",
+    "groups": [
+      {
+        "g": "A-4",
+        "rule": "LL <= 40 && PI <= 10",
+        "materials": "Silty soils"
+      },
+      {
+        "g": "A-5",
+        "rule": "LL >= 41 && PI <= 10",
+        "materials": "Silty soils"
+      },
+      {
+        "g": "A-6",
+        "rule": "LL <= 40 && PI >= 11",
+        "materials": "Clayey soils"
+      },
+      {
+        "g": "A-7-5",
+        "rule": "LL >= 41 && PI >= 11 && PI <= LL - 30",
+        "materials": "Clayey soils"
+      },
+      {
+        "g": "A-7-6",
+        "rule": "LL >= 41 && PI >= 11 && PI > LL - 30",
+        "materials": "Clayey soils"
+      }
+    ],
+    "rating": "Fair to poor"
+  }
+}

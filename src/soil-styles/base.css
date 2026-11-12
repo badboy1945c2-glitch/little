@@ -1,0 +1,116 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  direction: rtl;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--ink);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* خلفية هندسية شبكية هادئة تعطي إحساس ورقة الرسم الهندسي */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(227, 220, 243, 0.28) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(227, 220, 243, 0.28) 1px, transparent 1px);
+  z-index: -1;
+}
+
+/* احترام تفضيل المستخدم لتقليل الحركة */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* حلقات تركيز واضحة للوصولية (Accessibility) */
+:focus-visible {
+  outline: 2px solid var(--violet-600);
+  outline-offset: 2px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ink);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+h1 { font-size: 1.9rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+p {
+  color: var(--ink-soft);
+}
+
+a {
+  color: var(--violet-600);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--violet-800);
+}
+
+code, kbd, samp, pre, .font-mono {
+  font-family: var(--font-mono);
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+input, button, select, textarea {
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+img, svg {
+  max-width: 100%;
+  display: block;
+}
+
+/* حاوية مركزية للمحتوى */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* تنسيق للطباعة */
+@media print {
+  body::before { display: none; }
+  .no-print { display: none !important; }
+}

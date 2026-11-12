@@ -1,0 +1,66 @@
+{
+  "gravelCorrection": "sand' = sand*100/(100-gravel) وكذلك silt وclay",
+  "rules": [
+    {
+      "order": 1,
+      "name": "Sand",
+      "condition": "(silt + 1.5*clay < 15)"
+    },
+    {
+      "order": 2,
+      "name": "Loamy sand",
+      "condition": "(silt + 1.5*clay >= 15 and silt + 2*clay < 30)"
+    },
+    {
+      "order": 3,
+      "name": "Sandy loam",
+      "condition": "((7 <= clay < 20 and sand > 52 and silt + 2*clay >= 30) or (clay < 7 and silt < 50 and silt + 2*clay >= 30))"
+    },
+    {
+      "order": 4,
+      "name": "Loam",
+      "condition": "(7 <= clay < 27 and 28 <= silt < 50 and sand <= 52)"
+    },
+    {
+      "order": 5,
+      "name": "Silt loam",
+      "condition": "((silt >= 50 and 12 <= clay < 27) or (50 <= silt < 80 and clay < 12))"
+    },
+    {
+      "order": 6,
+      "name": "Silt",
+      "condition": "(silt >= 80 and clay < 12)"
+    },
+    {
+      "order": 7,
+      "name": "Sandy clay loam",
+      "condition": "(20 <= clay < 35 and silt < 28 and sand > 45)"
+    },
+    {
+      "order": 8,
+      "name": "Clay loam",
+      "condition": "(27 <= clay < 40 and 20 < sand <= 45)"
+    },
+    {
+      "order": 9,
+      "name": "Silty clay loam",
+      "condition": "(27 <= clay < 40 and sand <= 20)"
+    },
+    {
+      "order": 10,
+      "name": "Sandy clay",
+      "condition": "(clay >= 35 and sand > 45)"
+    },
+    {
+      "order": 11,
+      "name": "Silty clay",
+      "condition": "(clay >= 40 and silt >= 40)"
+    },
+    {
+      "order": 12,
+      "name": "Clay",
+      "condition": "(clay >= 40 and sand <= 45 and silt < 40)"
+    }
+  ],
+  "page": "31-32"
+}

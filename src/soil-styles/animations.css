@@ -1,0 +1,181 @@
+/* ==========================================================================
+   animations.css - نظام الحركات الهندسية لموقع «المهندس الصغير»
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. ظهور العناصر عند التمرير (Scroll Reveal)
+   -------------------------------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 450ms cubic-bezier(.2, .7, .2, 1),
+              transform 450ms cubic-bezier(.2, .7, .2, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ظهور متتابع (Stagger) */
+.stagger-container .reveal-item {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 400ms cubic-bezier(.2, .7, .2, 1),
+              transform 400ms cubic-bezier(.2, .7, .2, 1);
+  transition-delay: calc(var(--stagger-idx, 0) * 60ms);
+}
+
+.stagger-container.is-revealed .reveal-item {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   2. رسم الخطوط الهندسية (Line Drawing by stroke-dashoffset)
+   -------------------------------------------------------------------------- */
+.draw-line {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  transition: stroke-dashoffset 700ms cubic-bezier(.2, .7, .2, 1);
+}
+
+.draw-line.is-drawn {
+  stroke-dashoffset: 0;
+}
+
+/* --------------------------------------------------------------------------
+   3. انتقال الصفحات الهندسي الاحترافي (Engineering Page Animation)
+   -------------------------------------------------------------------------- */
+.page-container {
+  animation: engineeringPageIn 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top center;
+}
+
+@keyframes engineeringPageIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. خلفية الهيرو الشبكية المتحركة (Hero Grid Animation)
+   -------------------------------------------------------------------------- */
+.hero-blueprint-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-grid-svg {
+  width: 100%;
+  height: 100%;
+  opacity: 0.7;
+}
+
+.hero-grid-line {
+  stroke: var(--line);
+  stroke-width: 1;
+  transition: transform 300ms ease-out;
+}
+
+.hero-grid-accent {
+  stroke: var(--violet-300);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+/* نبض خفيف جداً لعلامات التقاطع الهندسية */
+.grid-cross {
+  animation: crossFloat 8s ease-in-out infinite alternate;
+}
+
+@keyframes crossFloat {
+  0% { transform: translate(0, 0); opacity: 0.4; }
+  100% { transform: translate(4px, -4px); opacity: 0.8; }
+}
+
+/* --------------------------------------------------------------------------
+   5. ظهور خطوات الحل المتتابعة (Steps Reveal)
+   -------------------------------------------------------------------------- */
+.step-item {
+  opacity: 0;
+  transform: translateX(12px);
+  animation: stepIn 300ms cubic-bezier(.2, .7, .2, 1) forwards;
+}
+
+@keyframes stepIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. الصور المتلاشية (Image Blur / Fade)
+   -------------------------------------------------------------------------- */
+.img-fade-in {
+  opacity: 0;
+  transition: opacity 300ms ease-in;
+}
+
+.img-fade-in.is-loaded {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   7. شريط تقدم التمرير العلوي (Scroll Progress Bar)
+   -------------------------------------------------------------------------- */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--violet-600);
+  width: 0%;
+  z-index: 9999;
+  transition: width 80ms linear;
+}
+
+/* --------------------------------------------------------------------------
+   8. إلغاء الحركات عند تفعيل وضع تقليل الحركة أو إيقافها من الإعدادات
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .stagger-container .reveal-item,
+  .draw-line,
+  .page-container,
+  .grid-cross,
+  .step-item,
+  .img-fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+body.animations-disabled .reveal,
+body.animations-disabled .stagger-container .reveal-item,
+body.animations-disabled .draw-line,
+body.animations-disabled .page-container,
+body.animations-disabled .grid-cross,
+body.animations-disabled .step-item,
+body.animations-disabled .img-fade-in {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+  stroke-dashoffset: 0 !important;
+}
